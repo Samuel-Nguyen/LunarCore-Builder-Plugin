@@ -1,10 +1,10 @@
 {
-  "name": "Importer",
-  "description": "A plugin for LunarCore to import characters from https://enka.network/",
+  "name": "BestInSlot",
+  "description": "A plugin for LunarCore to get best in slot relics for characters.",
   "version": "1.0.0",
   "api": 1,
-  "authors": [ "Melledy" ],
-  "mainClass": "dev.melledy.importer.ImporterPlugin",
+  "authors": [ "dRav3n" ],
+  "mainClass": "dev.dRav3n.bestinslot.BestInSlotPlugin",
   "comments": [
   ]
 }

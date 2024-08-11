@@ -32,7 +32,7 @@ dependencies {
 
 jar {
     jar {
-        archiveBaseName = 'importer'
+        archiveBaseName = 'bestinslot'
         archiveVersion = ''
     }
 
