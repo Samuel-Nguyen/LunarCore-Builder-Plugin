@@ -1,10 +1,10 @@
 {
-  "name": "BestInSlot",
-  "description": "A plugin for LunarCore to get best in slot relics for characters.",
+  "name": "Builder",
+  "description": "A plugin that adds a command to LunarCore to import characters from prepared build",
   "version": "1.0.0",
   "api": 1,
-  "authors": [ "dRav3n" ],
-  "mainClass": "dev.dRav3n.bestinslot.BestInSlotPlugin",
+  "authors": [ "dRaven" ],
+  "mainClass": "dev.draven.builder.BuilderPlugin",
   "comments": [
   ]
 }

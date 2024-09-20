@@ -32,7 +32,7 @@ dependencies {
 
 jar {
     jar {
-        archiveBaseName = 'bestinslot'
+        archiveBaseName = 'builder'
         archiveVersion = ''
     }
 
