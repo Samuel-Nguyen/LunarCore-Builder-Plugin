@@ -37,7 +37,7 @@ public class BuilderCommand implements CommandHandler {
     }
 
     private String parseBuildData(CommandArgs args) {
-        String message = "";
+        String message = "Don't have any builds. Please define one.";
         int total = 0;
         String name = args.get(0).toLowerCase();
         String buildName = args.get(1).equals("") ? "normal" : args.get(1).toLowerCase();
@@ -45,37 +45,33 @@ public class BuilderCommand implements CommandHandler {
 
         try (FileReader fileReader = new FileReader(LunarCore.getConfig().getDataDir() + "/BuildDetails.json")) {
             List<BuilderData> buildInformation = JsonUtils.loadToList(fileReader, BuilderData.class);
-            for (BuilderData buildInfo : buildInformation) {
-                switch (name) {
-                    case "all", "a" -> {
+            switch (name) {
+                case "all", "a" -> {
+                    for (BuilderData buildInfo : buildInformation) {
                         build = generateBuild(args, buildInfo, args.getTarget(), buildName, build);
                         if (build) {
                             total++;
                         }
                     }
-                    default -> {
+                }
+                default -> {
+                    for (BuilderData buildInfo : buildInformation) {
                         if (!buildInfo.getAvatarName().equals(name)) {
-                            message = "Don't have any builds. Please define one.";
                             continue;
                         }
                         build = generateBuild(args, buildInfo, args.getTarget(), buildName, build);
-                        // Get the character name
-                        message = "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase()
-                                + " build.";
-
-                        if (!build) {
-                            message = "There is no " + buildName.toUpperCase() + " for " + buildInfo.getFullName()
-                                    + ".";
-                        }
+                        message = (build) ? "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase() + " build." 
+                            : "There is no " + buildName.toUpperCase() + " for " + buildInfo.getFullName() + ".";
                     }
                 }
-            }
-            if (total > 0) {
-                message = "Give " + total + " characters relics for " + buildName + " build.";
             }
         } catch (Exception e) {
             // TODO: handle exception
             args.sendMessage("Something wrong!!");
+        }
+
+        if (total > 0) {
+            message = "Give " + total + " characters relics for " + buildName + " build.";
         }
 
         return message;
@@ -214,6 +210,6 @@ public class BuilderCommand implements CommandHandler {
         // Save
         avatar.save();
 
-        return true;
+        return build;
     }
 }
