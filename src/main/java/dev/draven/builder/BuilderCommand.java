@@ -60,8 +60,10 @@ public class BuilderCommand implements CommandHandler {
                             continue;
                         }
                         build = generateBuild(args, buildInfo, args.getTarget(), buildName, build);
-                        message = (build) ? "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase() + " build." 
-                            : "There is no " + buildName.toUpperCase() + " for " + buildInfo.getFullName() + ".";
+                        message = (build)
+                                ? "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase() + " build."
+                                : "There is no " + buildName.toUpperCase() + " build for " + buildInfo.getFullName() + ".";
+                        break;
                     }
                 }
             }
@@ -71,7 +73,7 @@ public class BuilderCommand implements CommandHandler {
         }
 
         if (total > 0) {
-            message = "Give " + total + " characters relics for " + buildName + " build.";
+            message = "Give " + total + " characters relics for " + buildName.toUpperCase() + " build.";
         }
 
         return message;
@@ -126,6 +128,13 @@ public class BuilderCommand implements CommandHandler {
 
         // Get build information
         var buildList = buildInfo.getBuildList();
+
+        // Get build name if only have 1 build
+        if (buildInfo.getBuildList().size() == 1) {
+            buildName = buildInfo.getBuildList().get(0).getBuildName();
+            args.getSender().sendMessage("Only have 1 build. Revert " + buildInfo.getFullName() + " to " + buildName.toUpperCase() + " build.");
+        }
+
         for (var buildDetail : buildList) {
             if (!buildDetail.getBuildName().equals(buildName)) {
                 continue;
