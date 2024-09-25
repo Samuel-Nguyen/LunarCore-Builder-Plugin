@@ -132,7 +132,11 @@ public class BuilderCommand implements CommandHandler {
         // Get build name if only have 1 build
         if (buildInfo.getBuildList().size() == 1) {
             buildName = buildInfo.getBuildList().get(0).getBuildName();
-            args.getSender().sendMessage("Only have 1 build. Revert " + buildInfo.getFullName() + " to " + buildName.toUpperCase() + " build.");
+
+            // Four star character may only have 1 build
+            if (buildInfo.getRarity() != 4) {
+                args.getSender().sendMessage("Only have 1 build. Revert " + buildInfo.getFullName() + " to " + buildName.toUpperCase() + " build.");
+            }
         }
 
         for (var buildDetail : buildList) {

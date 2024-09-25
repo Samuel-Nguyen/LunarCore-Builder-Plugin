@@ -9,6 +9,7 @@ public class BuilderData {
     private int avatarId;
     private String avatarName;
     private String fullName;
+    private int rarity;
     private int skill;
     private List<BuildDetail> buildList;
 
