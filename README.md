@@ -24,50 +24,51 @@ For perfect the relics, just add `-max` at the end of the command.
 There are only 36 characters right now.
 Will update it eventually.
 
-| Character                  | Nickname |         |
-|----------------------------|----------|---------|
-| Acheron                    | ache     | &#9745; |
-| Argenti                    | argen    | &#9745; |
-| Arlan                      |          |         |
-| Asta                       |          |         |
-| Aventurine                 | aven     | &#9745; |
-| Bailu                      |          |         |
-| Black Swan                 | swan     | &#9745; |
-| Blade                      | blade    | &#9745; |
-| Boothill                   | boot     | &#9745; |
-| Bronya                     | bron     | &#9745; |
-| Clara                      | clara    | &#9745; |
-| Dan Heng                   |          |         |
-| Dan Heng IL                | il       | &#9745; |
-| Dr. Ratio                  | ratio    | &#9745; |
-| Feixiao                    | fei      | &#9745; |
-| Firefly                    | fly      | &#9745; |
-| Fu Xuan                    | fu       | &#9745; |
-| Gallagher                  | gall     | &#9745; |
-| Gepard                     |          |         |
-| Guinaifen                  | gui      | &#9745; |
-| Hanya                      |          |         |
-| Herta                      | herta    | &#9745; |
-| Himeko                     | him      | &#9745; |
-| Hook                       |          |         |
-| Huohuo                     | huo      | &#9745; |
-| Jade                       | jade     | &#9745; |
-| Jiaoqiu                    | jqiu     | &#9745; |
-| Jing Yuan                  | jyuan    | &#9745; |
-| Jingliu                    | jliu     | &#9745; |
-| Kafka                      | kafka    | &#9745; |
-| Luka                       |          |         |
-| Luocha                     | luocha   | &#9745; |
+| Character                  | Nickname |Build Name|
+|----------------------------|----------|----------|
+| Acheron                    | ache     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Argenti                    | argen    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Arlan                      |          |          |
+| Asta                       |          |          |
+| Aventurine                 | aven     |**Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Bailu                      |          |          |
+| Black Swan                 | swan     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Blade                      | blade    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Boothill                   | boot     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Bronya                     | bron     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Clara                      | clara    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Dan Heng                   |          |          |
+| Dan Heng IL                | il       | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Dr. Ratio                  | ratio    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Feixiao                    | fei      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Firefly                    | fly      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Fu Xuan                    | fu       | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Gallagher                  | gall     | **Normal** |
+| Gepard                     |          |          |
+| Guinaifen                  | gui      | **Normal** |
+| Hanya                      |          |          |
+| Herta                      | herta    | **Normal** |
+| Himeko                     | him      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Hook                       |          |          |
+| Huohuo                     | huo      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Jade                       | jade     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Jiaoqiu                    | jqiu     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Jing Yuan                  | jyuan    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Jingliu                    | jliu     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Kafka                      | kafka    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Lingsha                    | ling     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Luka                       |          |          |
+| Luocha                     | luocha   | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Lynx                       |          |         |
 | March 7th - Preservation   |          |         |
-| March 7th - The Hunt       | m7hunt   | &#9745; |
-| Moze                       | moze     | &#9745; |
+| March 7th - The Hunt       | m7hunt   | **Normal**, **Break** |
+| Moze                       | moze     | **Normal** |
 | Misha                      |          |         |
 | Natasha                    |          |         |
-| Pela                       | pela     | &#9745; |
+| Pela                       | pela     | **Normal** |
 | Qingque                    |          |         |
-| Robin                      | robin    | &#9745; |
-| Ruan Mei                   | mei      | &#9745; |
+| Robin                      | robin    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Ruan Mei                   | mei      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Sampo                      |          |         |
 | Seele                      | seele    | &#9745; |
 | Serval                     |          |         |
