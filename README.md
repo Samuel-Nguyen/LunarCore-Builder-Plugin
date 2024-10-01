@@ -11,7 +11,7 @@ A plugin that adds a command to LunarCore to import characters from JSON file.
 
 Put `BuilderDetails.json` in LunarCore data folder
 
-Use `/build [all/nick name] [build name]` in-game
+Use `/build [all/nick name] [build name] (-max)` in-game
 
 If not enter specific `[build name]`, it will get the normal one.
 
@@ -22,6 +22,7 @@ For perfect the relics, just add `-max` at the end of the command.
 ## Build
 
 There are only 36 characters right now.
+
 Will update it eventually.
 
 | Character                  | Nickname |Build Name|
