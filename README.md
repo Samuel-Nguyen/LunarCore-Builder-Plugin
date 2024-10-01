@@ -26,7 +26,7 @@ There are only 36 characters right now.
 Will update it eventually.
 
 > Note:
-> * 4-star always E6 and using 4-star LC S5.
+> * 4-star always E6 and using 4-star LC S5, include Trailblazer.
 > * F2P only used 4-star LC.
 > * H for eidolons, T for superimpositions.
 
@@ -36,7 +36,7 @@ Will update it eventually.
 | Argenti                    | argen    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Arlan                      |          |          |
 | Asta                       |          |          |
-| Aventurine                 | aven     |**Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Aventurine                 | aven     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Bailu                      |          |          |
 | Black Swan                 | swan     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Blade                      | blade    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
@@ -76,21 +76,21 @@ Will update it eventually.
 | Robin                      | robin    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Ruan Mei                   | mei      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Sampo                      |          |         |
-| Seele                      | seele    | &#9745; |
+| Seele                      | seele    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Serval                     |          |         |
-| Silver Wolf                | wolf     | &#9745; |
-| Sparkle                    | sparkle  | &#9745; |
+| Silver Wolf                | wolf     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| Sparkle                    | sparkle  | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Sushang                    |          |         |
-| Tingyun                    | ting     | &#9745; |
-| Topaz & Numby              | topaz    | &#9745; |
+| Tingyun                    | ting     | **Normal** |
+| Topaz & Numby              | topaz    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | Trailblazer - Destruction  |          |         |
 | Trailblazer - Preservation |          |         |
-| Trailblazer - Harmony      | tbharm   | &#9745; |
+| Trailblazer - Harmony      | tbharm   | **Normal** |
 | Welt                       |          |         |
 | Xueyi                      |          |         |
 | Yanqing                    |          |         |
 | Yukong                     |          |         |
-| Yunli                      | yunli    | &#9745; |
+| Yunli                      | yunli    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 
 ## Credits
 
