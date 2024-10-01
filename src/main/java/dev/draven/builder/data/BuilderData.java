@@ -1,7 +1,6 @@
 package dev.draven.builder.data;
 
 import java.util.List;
-
 import lombok.Getter;
 
 @Getter
@@ -30,14 +29,7 @@ public class BuilderData {
     @Getter
     public static class RelicDetail {
         private int tid;
-        private int type;
-        private int mainAffixId;
-        private List<RelicSubAffix> subAffixList;
-    }
-
-    @Getter
-    public static class RelicSubAffix {
-        private int affixId;
-        private int cnt;
+        private Integer mainAffixId;
+        private String subAffix;
     }
 }

@@ -16,6 +16,8 @@ import emu.lunarcore.game.inventory.GameItemSubAffix;
 import emu.lunarcore.game.inventory.tabs.InventoryTabType;
 import emu.lunarcore.game.player.Player;
 import emu.lunarcore.util.JsonUtils;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 @Command(label = "build", aliases = {
         "b" }, permission = "player.give", requireTarget = true, desc = "/build [character id]")
@@ -61,8 +63,10 @@ public class BuilderCommand implements CommandHandler {
                         }
                         build = generateBuild(args, buildInfo, args.getTarget(), buildName, build);
                         message = (build)
-                                ? "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase() + " build."
-                                : "There is no " + buildName.toUpperCase() + " build for " + buildInfo.getFullName() + ".";
+                                ? "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase()
+                                        + " build."
+                                : "There is no " + buildName.toUpperCase() + " build for " + buildInfo.getFullName()
+                                        + ".";
                         break;
                     }
                 }
@@ -135,7 +139,8 @@ public class BuilderCommand implements CommandHandler {
 
             // Four star character may only have 1 build
             if (buildInfo.getRarity() != 4) {
-                args.getSender().sendMessage("Only have 1 build. Revert " + buildInfo.getFullName() + " to " + buildName.toUpperCase() + " build.");
+                args.getSender().sendMessage("Only have 1 build. Revert " + buildInfo.getFullName() + " to "
+                        + buildName.toUpperCase() + " build.");
             }
         }
 
@@ -180,25 +185,46 @@ public class BuilderCommand implements CommandHandler {
 
                 // Create relic
                 var relic = new GameItem(excel);
+                int mainAffixId = relicData.getMainAffixId() != null ? relicData.getMainAffixId() : 1;
 
                 // Set relic props
                 relic.setLevel(15);
                 relic.setExp(0);
-                relic.setMainAffix(relicData.getMainAffixId());
+                relic.setMainAffix(mainAffixId);
+
+                // Set sub-stats
                 relic.resetSubAffixes();
 
-                for (var subAffixData : relicData.getSubAffixList()) {
-                    if (subAffixData.getCnt() <= 0)
-                        continue;
+                String[] subAffixList = relicData.getSubAffix().split(" ");
+                Int2IntMap subAffixMap = new Int2IntOpenHashMap();
 
-                    var subAffix = GameData.getRelicSubAffixExcel(
-                            relic.getExcel().getRelicExcel().getSubAffixGroup(), subAffixData.getAffixId());
-                    if (subAffix == null)
-                        continue;
+                for (String subAffix : subAffixList) {
+                    String[] split = subAffix.split("[:,]");
+                    if (split.length >= 2) {
+                        int key = Integer.parseInt(split[0]);
+                        int value = Integer.parseInt(split[1]);
 
-                    int count = Math.min(subAffixData.getCnt(), 6);
+                        subAffixMap.put(key, value);
+                    }
+                }
 
-                    relic.getSubAffixes().add(new GameItemSubAffix(subAffix, count));
+                if (subAffixMap != null) {
+                    // Reset sub-stats first
+
+                    for (var entry : subAffixMap.int2IntEntrySet()) {
+                        if (entry.getIntValue() <= 0)
+                            continue;
+
+                        var subAffix = GameData.getRelicSubAffixExcel(
+                                relic.getExcel().getRelicExcel().getSubAffixGroup(),
+                                entry.getIntKey());
+                        if (subAffix == null)
+                            continue;
+
+                        // Set count
+                        int count = Math.min(entry.getIntValue(), 6);
+                        relic.getSubAffixes().add(new GameItemSubAffix(subAffix, count));
+                    }
                 }
 
                 // Apply sub stat upgrades to the relic
