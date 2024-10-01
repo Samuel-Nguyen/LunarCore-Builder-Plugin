@@ -25,6 +25,11 @@ There are only 36 characters right now.
 
 Will update it eventually.
 
+> Note:
+> * 4-star always E6 and using 4-star LC S5.
+> * F2P only used 4-star LC.
+> * H for eidolons, T for superimpositions.
+
 | Character                  | Nickname |Build Name|
 |----------------------------|----------|----------|
 | Acheron                    | ache     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
