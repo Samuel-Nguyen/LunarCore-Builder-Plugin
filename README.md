@@ -32,8 +32,8 @@ Default build for multi path characters:
 > * 4-star always E6 and using 4-star LC S5, include Trailblazer.
 > * For Trailblazer & March 7th, please consider change path before using specific builds.
 > * F2P only used 4-star LC.
-> * H for eidolons, T for superimpositions.
-> 
+> * H for eidolons, T for superimpositions. (LC original command cut out all E & S for other purpose...so...)
+
 
 | ID   | Character     | Nickname | Build Name |
 |------|---------------|----------|------------|
@@ -41,7 +41,7 @@ Default build for multi path characters:
 | 1302 | Argenti       | argen    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | 1008 | Arlan         | arlan    | **Normal** |
 | 1009 | Asta          | asta     | **Normal** |
-| 1304 | Aventurine    | aven     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1304 | Aventurine    | aven     | **Normal**, **DPS**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | 1211 | Bailu         | bailu    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | 1307 | Black Swan    | swan     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | 1205 | Blade         | blade    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
@@ -87,7 +87,7 @@ Default build for multi path characters:
 | 1206 | Sushang       | sus      | **Normal** |
 | 1202 | Tingyun       | ting     | **Normal** |
 | 1112 | Topaz & Numby | topaz    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| 8001 | Trailblazer   | tb       | **Normal**, **DEF**, **Break** |
+| 8001 | Trailblazer   | tb       | **Normal**, **Def**, **Break** |
 | 1004 | Welt          | welt     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 | 1214 | Xueyi         | xueyi    | **Normal** |
 | 1209 | Yanqing       | yqing    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
