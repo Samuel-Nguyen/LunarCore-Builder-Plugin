@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.draven.builder.data.BuilderData;
+import dev.draven.builder.data.BuilderData.BuildDetail;
 import emu.lunarcore.LunarCore;
 import emu.lunarcore.command.Command;
 import emu.lunarcore.command.CommandArgs;
@@ -16,6 +17,7 @@ import emu.lunarcore.game.inventory.GameItemSubAffix;
 import emu.lunarcore.game.inventory.tabs.InventoryTabType;
 import emu.lunarcore.game.player.Player;
 import emu.lunarcore.util.JsonUtils;
+import emu.lunarcore.util.Utils;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
@@ -38,36 +40,48 @@ public class BuilderCommand implements CommandHandler {
 
     }
 
+    private static boolean isNumeric(String str) {
+        return str != null && str.matches("\\d+");
+    }
+
     private String parseBuildData(CommandArgs args) {
         String message = "Don't have any builds. Please define one.";
         int total = 0;
-        String name = args.get(0).toLowerCase();
+        String input = args.get(0).toLowerCase();
         String buildName = args.get(1).equals("") ? "normal" : args.get(1).toLowerCase();
         Boolean build = false;
 
         try (FileReader fileReader = new FileReader(LunarCore.getConfig().getDataDir() + "/BuildDetails.json")) {
             List<BuilderData> buildInformation = JsonUtils.loadToList(fileReader, BuilderData.class);
-            switch (name) {
+            switch (input) {
                 case "all", "a" -> {
                     for (BuilderData buildInfo : buildInformation) {
-                        build = generateBuild(args, buildInfo, args.getTarget(), buildName, build);
+                        build = generateBuild(args, buildInfo, args.getTarget(), buildName);
                         if (build) {
                             total++;
                         }
                     }
                 }
                 default -> {
-                    for (BuilderData buildInfo : buildInformation) {
-                        if (!buildInfo.getAvatarName().equals(name)) {
-                            continue;
+                    if (isNumeric(input)) {
+                        int id = Utils.parseSafeInt(input);
+                        for (BuilderData buildInfo : buildInformation) {
+                            if (buildInfo.getAvatarId() != id) {
+                                continue;
+                            }
+                            generateBuild(args, buildInfo, args.getTarget(), buildName);
+                            message = "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase() + " build.";
+                            break;
                         }
-                        build = generateBuild(args, buildInfo, args.getTarget(), buildName, build);
-                        message = (build)
-                                ? "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase()
-                                        + " build."
-                                : "There is no " + buildName.toUpperCase() + " build for " + buildInfo.getFullName()
-                                        + ".";
-                        break;
+                    } else {
+                        for (BuilderData buildInfo : buildInformation) {
+                            if (!buildInfo.getAvatarName().equals(input)) {
+                                continue;
+                            }
+                            generateBuild(args, buildInfo, args.getTarget(), buildName);
+                            message = "Give " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase() + " build.";
+                            break;
+                        }
                     }
                 }
             }
@@ -83,8 +97,7 @@ public class BuilderCommand implements CommandHandler {
         return message;
     }
 
-    public Boolean generateBuild(CommandArgs args, BuilderData buildInfo, Player player, String buildName,
-            Boolean build) {
+    public Boolean generateBuild(CommandArgs args, BuilderData buildInfo, Player player, String buildName) {
         int id = buildInfo.getAvatarId();
         GameAvatar avatar = player.getAvatarById(id);
 
@@ -102,7 +115,7 @@ public class BuilderCommand implements CommandHandler {
             }
             player.getInventory().removeItems(unequipList);
         } else {
-            // Validate avatar excel (In case we are using an older version of the server)
+            // Validate avatar excel (In case we are using an older version of the server
             var excel = GameData.getAvatarExcelMap().get(id);
 
             // Create avatar
@@ -133,122 +146,124 @@ public class BuilderCommand implements CommandHandler {
         // Get build information
         var buildList = buildInfo.getBuildList();
 
-        // Get build name if only have 1 build
-        if (buildInfo.getBuildList().size() == 1) {
-            buildName = buildInfo.getBuildList().get(0).getBuildName();
-
-            // Four star character may only have 1 build
-            if (buildInfo.getRarity() != 4) {
-                args.getSender().sendMessage("Only have 1 build. Revert " + buildInfo.getFullName() + " to "
-                        + buildName.toUpperCase() + " build.");
-            }
+        // Return immediately if build list is empty
+        if (buildList.isEmpty()) {
+            return false;
         }
 
-        for (var buildDetail : buildList) {
-            if (!buildDetail.getBuildName().equals(buildName)) {
-                continue;
-            }
+        // Check build list
+        BuildDetail buildDetail = new BuildDetail();
+        BuildDetail[] result = buildList.stream()
+                .filter(detail -> detail.getBuildName().equals(buildName))
+                .toArray(BuildDetail[]::new);
 
-            build = true;
+        if (result.length == 0 && buildList.size() > 1) {
+            args.getSender()
+                    .sendMessage(buildInfo.getFullName() + " don't have " + buildName.toUpperCase() + " build.");
+            buildDetail = buildList.get(0);
+            args.getSender()
+                    .sendMessage("Revert " + buildInfo.getFullName() + " to " + buildDetail.getBuildName().toUpperCase() + " build.");
+        }
 
-            // Set avatar eidolons
-            avatar.setRank(buildDetail.getEidolon());
+        buildDetail = (result.length > 0) ? result[0] : buildList.get(0);
 
-            // Set equipment
-            var equipmentData = buildDetail.getEquipment();
-            if (equipmentData != null) {
-                // Validate equipment excel (In case we are using an older version of the
-                // server)
-                var excel = GameData.getItemExcelMap().get(equipmentData.getTid());
-                if (excel != null) {
-                    // Create equipment
-                    var equipment = new GameItem(excel);
+        // Set avatar eidolons
+        avatar.setRank(buildDetail.getEidolon());
 
-                    // Set equipment props
-                    equipment.setLevel(80);
-                    equipment.setExp(0);
-                    equipment.setPromotion(6);
-                    equipment.setRank(equipmentData.getImposition());
+        // Set equipment
+        var equipmentData = buildDetail.getEquipment();
+        if (equipmentData != null) {
+            // Validate equipment excel (In case we are using an older version of the server
+            var excel = GameData.getItemExcelMap().get(equipmentData.getTid());
+            if (excel != null) {
+                // Create equipment
+                var equipment = new GameItem(excel);
 
-                    // Add to player
-                    player.getInventory().addItem(equipment);
-                    avatar.equipItem(equipment);
-                }
-            }
-
-            // Set relics
-            for (var relicData : buildDetail.getRelicList()) {
-                // Validate relic excel (In case we are using an older version of the server)
-                var excel = GameData.getItemExcelMap().get(relicData.getTid());
-                if (excel == null)
-                    continue;
-
-                // Create relic
-                var relic = new GameItem(excel);
-                int mainAffixId = relicData.getMainAffixId() != null ? relicData.getMainAffixId() : 1;
-
-                // Set relic props
-                relic.setLevel(15);
-                relic.setExp(0);
-                relic.setMainAffix(mainAffixId);
-
-                // Set sub-stats
-                relic.resetSubAffixes();
-
-                String[] subAffixList = relicData.getSubAffix().split(" ");
-                Int2IntMap subAffixMap = new Int2IntOpenHashMap();
-
-                for (String subAffix : subAffixList) {
-                    String[] split = subAffix.split("[:,]");
-                    if (split.length >= 2) {
-                        int key = Integer.parseInt(split[0]);
-                        int value = Integer.parseInt(split[1]);
-
-                        subAffixMap.put(key, value);
-                    }
-                }
-
-                if (subAffixMap != null) {
-                    // Reset sub-stats first
-
-                    for (var entry : subAffixMap.int2IntEntrySet()) {
-                        if (entry.getIntValue() <= 0)
-                            continue;
-
-                        var subAffix = GameData.getRelicSubAffixExcel(
-                                relic.getExcel().getRelicExcel().getSubAffixGroup(),
-                                entry.getIntKey());
-                        if (subAffix == null)
-                            continue;
-
-                        // Set count
-                        int count = Math.min(entry.getIntValue(), 6);
-                        relic.getSubAffixes().add(new GameItemSubAffix(subAffix, count));
-                    }
-                }
-
-                // Apply sub stat upgrades to the relic
-                int upgrades = relic.getMaxNormalSubAffixCount() - relic.getCurrentSubAffixCount();
-                if (upgrades > 0) {
-                    relic.addSubAffixes(upgrades);
-                }
-
-                if (args.hasFlag("-max")) {
-                    if (relic.getSubAffixes() == null) {
-                        relic.resetSubAffixes();
-                    }
-
-                    relic.getSubAffixes().forEach(subAffix -> subAffix.setStep(subAffix.getCount() * 2));
-                }
+                // Set equipment props
+                equipment.setLevel(80);
+                equipment.setExp(0);
+                equipment.setPromotion(6);
+                equipment.setRank(equipmentData.getImposition());
 
                 // Add to player
-                player.getInventory().addItem(relic);
-                avatar.equipItem(relic);
+                player.getInventory().addItem(equipment);
+                avatar.equipItem(equipment);
             }
         }
+
+        // Set relics
+        for (var relicData : buildDetail.getRelicList()) {
+            // Validate relic excel (In case we are using an older version of the server)
+            var excel = GameData.getItemExcelMap().get(relicData.getTid());
+            if (excel == null)
+                continue;
+
+            // Create relic
+            var relic = new GameItem(excel);
+            int mainAffixId = relicData.getMainAffixId() != null ? relicData.getMainAffixId() : 1;
+
+            // Set relic props
+            relic.setLevel(15);
+            relic.setExp(0);
+            relic.setMainAffix(mainAffixId);
+
+            // Set sub-stats
+            relic.resetSubAffixes();
+
+            String[] subAffixList = relicData.getSubAffix().split(" ");
+            Int2IntMap subAffixMap = new Int2IntOpenHashMap();
+
+            for (String subAffix : subAffixList) {
+                String[] split = subAffix.split("[:,]");
+                if (split.length >= 2) {
+                    int key = Integer.parseInt(split[0]);
+                    int value = Integer.parseInt(split[1]);
+
+                    subAffixMap.put(key, value);
+                }
+            }
+
+            if (subAffixMap != null) {
+                // Reset sub-stats first
+
+                for (var entry : subAffixMap.int2IntEntrySet()) {
+                    if (entry.getIntValue() <= 0)
+                        continue;
+
+                    var subAffix = GameData.getRelicSubAffixExcel(
+                            relic.getExcel().getRelicExcel().getSubAffixGroup(),
+                            entry.getIntKey());
+                    if (subAffix == null)
+                        continue;
+
+                    // Set count
+                    int count = Math.min(entry.getIntValue(), 6);
+                    relic.getSubAffixes().add(new GameItemSubAffix(subAffix, count));
+                }
+            }
+
+            // Apply sub stat upgrades to the relic
+            int upgrades = relic.getMaxNormalSubAffixCount() - relic.getCurrentSubAffixCount();
+            if (upgrades > 0) {
+                relic.addSubAffixes(upgrades);
+            }
+
+            if (args.hasFlag("-max")) {
+                if (relic.getSubAffixes() == null) {
+                    relic.resetSubAffixes();
+                }
+
+                relic.getSubAffixes().forEach(subAffix -> subAffix.setStep(subAffix.getCount() * 2));
+            }
+
+            // Add to player
+            player.getInventory().addItem(relic);
+            avatar.equipItem(relic);
+        }
+
         // Save
         avatar.save();
 
-        return build;
+        return true;
     }
 }

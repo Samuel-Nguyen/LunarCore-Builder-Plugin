@@ -11,86 +11,88 @@ A plugin that adds a command to LunarCore to import characters from JSON file.
 
 Put `BuilderDetails.json` in LunarCore data folder
 
-Use `/build [all/nick name] [build name] (-max)` in-game
+Use `/build [all/id/nick name] (build name) (-max)` in-game
 
-If not enter specific `[build name]`, it will get the normal one.
+If not enter specific `(build name)`, it will get the normal one.
 
 For perfect the relics, just add `-max` at the end of the command.
 
-> Note: You can define your build in `BuilderDetails.json`.
+> Note:
+> * You can define your build in `BuilderDetails.json`.
 
 ## Build
 
-There are only 36 characters right now.
+Full build from my perspective, please feel free to request if some builds are not in your favour.
 
-Will update it eventually.
+Default build for multi path characters:
+ * Destruction Trailblazer
+ * Preservation March 7th.
 
 > Note:
 > * 4-star always E6 and using 4-star LC S5, include Trailblazer.
+> * For Trailblazer & March 7th, please consider change path before using specific builds.
 > * F2P only used 4-star LC.
 > * H for eidolons, T for superimpositions.
+> 
 
-| Character                  | Nickname |Build Name|
-|----------------------------|----------|----------|
-| Acheron                    | ache     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Argenti                    | argen    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Arlan                      |          |          |
-| Asta                       |          |          |
-| Aventurine                 | aven     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Bailu                      |          |          |
-| Black Swan                 | swan     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Blade                      | blade    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Boothill                   | boot     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Bronya                     | bron     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Clara                      | clara    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Dan Heng                   |          |          |
-| Dan Heng IL                | il       | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Dr. Ratio                  | ratio    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Feixiao                    | fei      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Firefly                    | fly      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Fu Xuan                    | fu       | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Gallagher                  | gall     | **Normal** |
-| Gepard                     |          |          |
-| Guinaifen                  | gui      | **Normal** |
-| Hanya                      |          |          |
-| Herta                      | herta    | **Normal** |
-| Himeko                     | him      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Hook                       |          |          |
-| Huohuo                     | huo      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Jade                       | jade     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Jiaoqiu                    | jqiu     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Jing Yuan                  | jyuan    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Jingliu                    | jliu     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Kafka                      | kafka    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Lingsha                    | ling     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Luka                       |          |          |
-| Luocha                     | luocha   | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Lynx                       |          |         |
-| March 7th - Preservation   |          |         |
-| March 7th - The Hunt       | m7hunt   | **Normal**, **Break** |
-| Moze                       | moze     | **Normal** |
-| Misha                      |          |         |
-| Natasha                    |          |         |
-| Pela                       | pela     | **Normal** |
-| Qingque                    |          |         |
-| Robin                      | robin    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Ruan Mei                   | mei      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Sampo                      |          |         |
-| Seele                      | seele    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Serval                     |          |         |
-| Silver Wolf                | wolf     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Sparkle                    | sparkle  | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Sushang                    |          |         |
-| Tingyun                    | ting     | **Normal** |
-| Topaz & Numby              | topaz    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
-| Trailblazer - Destruction  |          |         |
-| Trailblazer - Preservation |          |         |
-| Trailblazer - Harmony      | tbharm   | **Normal** |
-| Welt                       |          |         |
-| Xueyi                      |          |         |
-| Yanqing                    |          |         |
-| Yukong                     |          |         |
-| Yunli                      | yunli    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| ID   | Character     | Nickname | Build Name |
+|------|---------------|----------|------------|
+| 1308 | Acheron       | ache     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1302 | Argenti       | argen    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1008 | Arlan         | arlan    | **Normal** |
+| 1009 | Asta          | asta     | **Normal** |
+| 1304 | Aventurine    | aven     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1211 | Bailu         | bailu    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1307 | Black Swan    | swan     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1205 | Blade         | blade    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1315 | Boothill      | boot     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1101 | Bronya        | bron     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1107 | Clara         | clara    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1002 | Dan Heng      | dan      | **Normal** |
+| 1213 | Dan Heng IL   | il       | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1305 | Dr. Ratio     | ratio    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1220 | Feixiao       | fei      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1310 | Firefly       | fly      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1208 | Fu Xuan       | fu       | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1301 | Gallagher     | gall     | **Normal** |
+| 1104 | Gepard        | gep      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1210 | Guinaifen     | gui      | **Normal** |
+| 1215 | Hanya         | hanya    | **Normal** |
+| 1013 | Herta         | herta    | **Normal** |
+| 1003 | Himeko        | him      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1109 | Hook          | hook     | **Normal** |
+| 1217 | Huohuo        | huo      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1314 | Jade          | jade     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1218 | Jiaoqiu       | jqiu     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1204 | Jing Yuan     | jyuan    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1212 | Jingliu       | jliu     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1005 | Kafka         | kafka    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1222 | Lingsha       | ling     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1111 | Luka          | luka     | **Normal**, **Break** |
+| 1203 | Luocha        | luocha   | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1110 | Lynx          | lynx     | **Normal** |
+| 1001 | March 7th     | m7       | **Normal**, **DPS**, **Break** |
+| 1312 | Moze          | moze     | **Normal** |
+| 1223 | Misha         | misha    | **Normal** |
+| 1105 | Natasha       | nat      | **Normal** |
+| 1106 | Pela          | pela     | **Normal** |
+| 1201 | Qingque       | qque     | **Normal** |
+| 1309 | Robin         | robin    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1303 | Ruan Mei      | mei      | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1108 | Sampo         | sampo    | **Normal** |
+| 1102 | Seele         | seele    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1103 | Serval        | serval   | **Normal** |
+| 1006 | Silver Wolf   | wolf     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1306 | Sparkle       | sparkle  | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1206 | Sushang       | sus      | **Normal** |
+| 1202 | Tingyun       | ting     | **Normal** |
+| 1112 | Topaz & Numby | topaz    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 8001 | Trailblazer   | tb       | **Normal**, **DEF**, **Break** |
+| 1004 | Welt          | welt     | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1214 | Xueyi         | xueyi    | **Normal** |
+| 1209 | Yanqing       | yqing    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
+| 1207 | Yukong        | ykong    | **Normal** |
+| 1221 | Yunli         | yunli    | **Normal**, **F2P**, **H1T1**, **H2T1**, **H4T1**, **H6T5** |
 
 ## Credits
 
