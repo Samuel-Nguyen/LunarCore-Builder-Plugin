@@ -41,29 +41,32 @@ public class BuilderCommand implements CommandHandler {
     private static final int MAX_RELIC_LEVEL = 15;
     private static final int EMPTY_EXP = 0;
     private static final int NO_REWARDS = 0b00101010;
+    private CommandArgs args;
+    private String specificName;
 
     @Override
     public void execute(CommandArgs args) {
-        if (!hasInventorySpace(args)) {
+        this.args = args;
+        if (!hasInventorySpace()) {
             args.sendMessage("Error: The targeted player does not have enough space in their inventory.");
             return;
         }
 
-        String message = parseBuildData(args);
+        String message = parseBuildData();
         args.getSender().sendMessage(message);
     }
 
-    private boolean hasInventorySpace(CommandArgs args) {
+    private boolean hasInventorySpace() {
         Inventory inventory = args.getTarget().getInventory();
         return hasAvailableCapacity(inventory, InventoryTabType.RELIC) &&
-               hasAvailableCapacity(inventory, InventoryTabType.EQUIPMENT);
+                hasAvailableCapacity(inventory, InventoryTabType.EQUIPMENT);
     }
 
     private boolean hasAvailableCapacity(Inventory inventory, InventoryTabType type) {
         return inventory.getTab(type).getAvailableCapacity() > 0;
     }
 
-    private String parseBuildData(CommandArgs args) {
+    private String parseBuildData() {
         String input = args.get(0).toLowerCase();
         String buildName = args.get(1).isEmpty() ? "normal" : args.get(1).toLowerCase();
         List<CharacterBuildData> buildInformation = loadBuildInformation();
@@ -73,8 +76,8 @@ public class BuilderCommand implements CommandHandler {
         }
 
         return switch (input) {
-            case "all", "a" -> processAllBuilds(args, buildInformation, buildName);
-            default -> processSpecificBuild(args, buildInformation, input, buildName);
+            case "all", "a" -> processAllBuilds(buildInformation, buildName);
+            default -> processSpecificBuild(buildInformation, input, buildName);
         };
     }
 
@@ -87,20 +90,20 @@ public class BuilderCommand implements CommandHandler {
         }
     }
 
-    private String processAllBuilds(CommandArgs args, List<CharacterBuildData> buildInformation, String buildName) {
+    private String processAllBuilds(List<CharacterBuildData> buildInformation, String buildName) {
         long total = buildInformation.stream()
-                .filter(buildInfo -> generateBuild(args, buildInfo, buildName))
+                .filter(buildInfo -> generateBuild(buildInfo, buildName))
                 .count();
 
         return "Gave " + total + " characters relics for " + buildName.toUpperCase() + " build.";
     }
 
-    private String processSpecificBuild(CommandArgs args, List<CharacterBuildData> buildInformation, String input,
+    private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input,
             String buildName) {
         Optional<CharacterBuildData> buildInfoOpt = findBuild(buildInformation, input);
         return buildInfoOpt.map(buildInfo -> {
-            generateBuild(args, buildInfo, buildName);
-            return "Gave " + buildInfo.getFullName() + " relics for " + buildName.toUpperCase() + " build.";
+            generateBuild(buildInfo, buildName);
+            return "Gave " + buildInfo.getFullName() + " relics for " + specificName.toUpperCase() + " build.";
         }).orElse("Build not found for input: " + input);
     }
 
@@ -110,7 +113,7 @@ public class BuilderCommand implements CommandHandler {
             : buildInformation.stream().filter(b -> b.getAvatarName().equalsIgnoreCase(input)).findFirst();
     }
 
-    public Boolean generateBuild(CommandArgs args, CharacterBuildData buildInfo, String buildName) {
+    public Boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
         Player player = args.getTarget();
         GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId(), player);
         if (avatar == null) return false;
@@ -171,14 +174,21 @@ public class BuilderCommand implements CommandHandler {
         avatar.setRank(buildDetail.getEidolonLevel());
         equipItem(avatar, buildDetail.getEquipment());
         equipRelics(avatar, buildDetail.getRelics());
+        this.specificName = buildDetail.getBuildName();
     }
 
     private BuildDetail getBuildDetail(CharacterBuildData buildInfo, String buildName) {
-        return buildInfo.getBuilds().stream()
+        Optional<BuildDetail> buildDetailOpt = buildInfo.getBuilds().stream()
                 .filter(detail -> detail.getBuildName().equalsIgnoreCase(buildName))
-                .findFirst()
-                .orElse(buildInfo.getBuilds().get(0)); // Returning the first build if not found
+                .findFirst();
+
+        if (buildDetailOpt.isEmpty()) {
+            args.sendMessage("Warning: Build '" + buildName + "' not found for character " + buildInfo.getFullName() + ". Applying the first build instead.");
+        }
+
+        return buildDetailOpt.orElse(buildInfo.getBuilds().get(0)); // Returning the first build if not found
     }
+    
 
     private void equipItem(GameAvatar avatar, EquipmentData equipmentData) {
         if (equipmentData != null) {
@@ -221,6 +231,10 @@ public class BuilderCommand implements CommandHandler {
 
         Int2IntMap subAffixMap = parseSubAffixes(relicData.getSubAffixes());
         applySubAffixes(relic, subAffixMap);
+
+        if (args.hasFlag("-max")) {
+            applyPerfectSubAffixes(relic);
+        }
     }
 
     private Int2IntMap parseSubAffixes(String subAffixData) {
@@ -247,6 +261,14 @@ public class BuilderCommand implements CommandHandler {
         if (upgrades > 0) {
             relic.addSubAffixes(upgrades);
         }
+    }
+
+    private void applyPerfectSubAffixes(GameItem relic) {
+        if (relic.getSubAffixes() == null) {
+            relic.resetSubAffixes();
+        }
+
+        relic.getSubAffixes().forEach(subAffix -> subAffix.setStep(subAffix.getCount() * 2));
     }
 
     private static boolean isNumeric(String str) {
