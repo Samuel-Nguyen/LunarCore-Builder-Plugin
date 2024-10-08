@@ -99,9 +99,13 @@ public class BuilderCommand implements CommandHandler {
         return "Gave " + total + " characters relics for " + buildName.toUpperCase() + " build.";
     }
 
-    private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input,
-            String buildName) {
+    private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
         Optional<CharacterBuildData> buildInfoOpt = findBuild(buildInformation, input);
+
+        if (buildInfoOpt == null) {
+            return "Character not found.";
+        }
+
         return buildInfoOpt.map(buildInfo -> {
             generateBuild(buildInfo, buildName);
             return "Gave " + buildInfo.getFullName() + " relics for " + specificName.toUpperCase() + " build.";
@@ -110,19 +114,15 @@ public class BuilderCommand implements CommandHandler {
 
     private Optional<CharacterBuildData> findBuild(List<CharacterBuildData> buildInformation, String input) {
         return isNumeric(input)
-            ? buildInformation.stream().filter(b -> b.getAvatarId() == Utils.parseSafeInt(input)).findFirst()
-            : buildInformation.stream().filter(b -> b.getAvatarName().equalsIgnoreCase(input)).findFirst();
+                ? buildInformation.stream().filter(b -> b.getAvatarId() == Utils.parseSafeInt(input)).findFirst()
+                : buildInformation.stream().filter(b -> b.getAvatarName().equalsIgnoreCase(input)).findFirst();
     }
 
     public Boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
         Player player = args.getTarget();
-
-        if (player.getLevel() < 70) {
-            player.setLevel(70);
-        }
-
         GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId(), player);
-        if (avatar == null) return false;
+        if (avatar == null)
+            return false;
 
         setupAvatar(avatar, buildInfo);
         applyBuild(avatar, buildInfo, buildName);
@@ -180,7 +180,6 @@ public class BuilderCommand implements CommandHandler {
         avatar.setRank(buildDetail.getEidolonLevel());
         equipItem(avatar, buildDetail.getEquipment());
         equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
-        this.specificName = buildDetail.getBuildName();
     }
 
     private BuildDetail getBuildDetail(CharacterBuildData buildInfo, String buildName) {
@@ -189,10 +188,12 @@ public class BuilderCommand implements CommandHandler {
                 .findFirst();
 
         if (buildDetailOpt.isEmpty()) {
-            args.sendMessage("Warning: Build '" + buildName + "' not found for character " + buildInfo.getFullName() + ". Applying the first build instead.");
+            String fallbackBuildName = buildInfo.getBuilds().get(0).getBuildName();
+            args.sendMessage("Warning: Build '" + buildName + "' not found for character " + buildInfo.getFullName() + "."
+                + " Applying the '" + fallbackBuildName + "' build instead.");
         }
 
-        return buildDetailOpt.orElse(buildInfo.getBuilds().get(0)); // Returning the first build if not found
+        return buildDetailOpt.orElse(buildInfo.getBuilds().get(0));
     }
 
     @Deprecated
@@ -219,39 +220,30 @@ public class BuilderCommand implements CommandHandler {
     @Deprecated
     private void equipRelics(GameAvatar avatar, List<Relic> buildRelics, List<Relic> defaultRelics) {
         List<Relic> appliedRelics = new ArrayList<>();
-    
+
         for (Relic defaultRelic : defaultRelics) {
             int defaultType = getRelicType(defaultRelic.getItemId());
-    
-            // Find matching relic in buildRelics by relic type (last digit)
+
             Relic buildRelic = buildRelics.stream()
-                .filter(r -> getRelicType(r.getItemId()) == defaultType)
-                .findFirst()
-                .orElse(null);
-    
+                    .filter(r -> getRelicType(r.getItemId()) == defaultType)
+                    .findFirst()
+                    .orElse(null);
+
             if (buildRelic != null) {
-                // Override the primary and sub-affixes from buildRelic when available
                 Relic appliedRelic = new Relic();
                 appliedRelic.setItemId(buildRelic.getItemId());
-    
-                // Inherit or override primary affix
+
                 appliedRelic.setPrimaryAffixId(
-                    Optional.ofNullable(buildRelic.getPrimaryAffixId()).orElse(defaultRelic.getPrimaryAffixId())
-                );
-    
-                // Inherit or override sub-affixes
+                        Optional.ofNullable(buildRelic.getPrimaryAffixId()).orElse(defaultRelic.getPrimaryAffixId()));
                 appliedRelic.setSubAffixes(
-                    Optional.ofNullable(buildRelic.getSubAffixes()).orElse(defaultRelic.getSubAffixes())
-                );
-    
+                        Optional.ofNullable(buildRelic.getSubAffixes()).orElse(defaultRelic.getSubAffixes()));
+
                 appliedRelics.add(appliedRelic);
             } else {
-                // No matching relic found, use the defaultRelic
                 appliedRelics.add(defaultRelic);
             }
         }
-    
-        // Equip the relics to the avatar
+
         for (Relic relicData : appliedRelics) {
             var excel = GameData.getItemExcelMap().get(relicData.getItemId());
             if (excel != null) {
@@ -262,8 +254,7 @@ public class BuilderCommand implements CommandHandler {
             }
         }
     }
-    
-    // Helper function to extract relic type based on the last digit of itemId (integer)
+
     private int getRelicType(int itemId) {
         return itemId % 10;
     }
