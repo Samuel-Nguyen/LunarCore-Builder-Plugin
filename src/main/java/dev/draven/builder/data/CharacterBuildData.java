@@ -3,6 +3,7 @@ package dev.draven.builder.data;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -15,7 +16,18 @@ public class CharacterBuildData {
     private String fullName;
     private int rarity;
     private int skillLevel;
+    private List<Relic> defaultRelics;
     private List<BuildDetail> builds;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Relic {
+        private int itemId;
+        private Integer primaryAffixId;
+        private String subAffixes;
+    }
 
     @Getter
     @NoArgsConstructor
@@ -23,24 +35,15 @@ public class CharacterBuildData {
     public static class BuildDetail {
         private String buildName;
         private int eidolonLevel;
-        private EquipmentData equipment;
-        private List<RelicData> relics;
+        private Equipment equipment;
+        private List<Relic> relics;
     }
 
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class EquipmentData {
+    public static class Equipment {
         private int itemId;
         private int enhancementLevel;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class RelicData {
-        private int itemId;
-        private Integer primaryAffixId;
-        private String subAffixes;
     }
 }

@@ -1,6 +1,7 @@
 package dev.draven.builder;
 
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -8,8 +9,8 @@ import java.util.Optional;
 
 import dev.draven.builder.data.CharacterBuildData;
 import dev.draven.builder.data.CharacterBuildData.BuildDetail;
-import dev.draven.builder.data.CharacterBuildData.EquipmentData;
-import dev.draven.builder.data.CharacterBuildData.RelicData;
+import dev.draven.builder.data.CharacterBuildData.Equipment;
+import dev.draven.builder.data.CharacterBuildData.Relic;
 import emu.lunarcore.LunarCore;
 import emu.lunarcore.command.Command;
 import emu.lunarcore.command.CommandArgs;
@@ -115,6 +116,11 @@ public class BuilderCommand implements CommandHandler {
 
     public Boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
         Player player = args.getTarget();
+
+        if (player.getLevel() < 70) {
+            player.setLevel(70);
+        }
+
         GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId(), player);
         if (avatar == null) return false;
 
@@ -173,7 +179,7 @@ public class BuilderCommand implements CommandHandler {
         BuildDetail buildDetail = getBuildDetail(buildInfo, buildName);
         avatar.setRank(buildDetail.getEidolonLevel());
         equipItem(avatar, buildDetail.getEquipment());
-        equipRelics(avatar, buildDetail.getRelics());
+        equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
         this.specificName = buildDetail.getBuildName();
     }
 
@@ -188,9 +194,9 @@ public class BuilderCommand implements CommandHandler {
 
         return buildDetailOpt.orElse(buildInfo.getBuilds().get(0)); // Returning the first build if not found
     }
-    
 
-    private void equipItem(GameAvatar avatar, EquipmentData equipmentData) {
+    @Deprecated
+    private void equipItem(GameAvatar avatar, Equipment equipmentData) {
         if (equipmentData != null) {
             var excel = GameData.getItemExcelMap().get(equipmentData.getItemId());
             if (excel != null) {
@@ -210,20 +216,59 @@ public class BuilderCommand implements CommandHandler {
         return equipment;
     }
 
-    private void equipRelics(GameAvatar avatar, List<RelicData> relicList) {
-        Player player = avatar.getOwner();
-        relicList.forEach(relicData -> {
+    @Deprecated
+    private void equipRelics(GameAvatar avatar, List<Relic> buildRelics, List<Relic> defaultRelics) {
+        List<Relic> appliedRelics = new ArrayList<>();
+    
+        for (Relic defaultRelic : defaultRelics) {
+            int defaultType = getRelicType(defaultRelic.getItemId());
+    
+            // Find matching relic in buildRelics by relic type (last digit)
+            Relic buildRelic = buildRelics.stream()
+                .filter(r -> getRelicType(r.getItemId()) == defaultType)
+                .findFirst()
+                .orElse(null);
+    
+            if (buildRelic != null) {
+                // Override the primary and sub-affixes from buildRelic when available
+                Relic appliedRelic = new Relic();
+                appliedRelic.setItemId(buildRelic.getItemId());
+    
+                // Inherit or override primary affix
+                appliedRelic.setPrimaryAffixId(
+                    Optional.ofNullable(buildRelic.getPrimaryAffixId()).orElse(defaultRelic.getPrimaryAffixId())
+                );
+    
+                // Inherit or override sub-affixes
+                appliedRelic.setSubAffixes(
+                    Optional.ofNullable(buildRelic.getSubAffixes()).orElse(defaultRelic.getSubAffixes())
+                );
+    
+                appliedRelics.add(appliedRelic);
+            } else {
+                // No matching relic found, use the defaultRelic
+                appliedRelics.add(defaultRelic);
+            }
+        }
+    
+        // Equip the relics to the avatar
+        for (Relic relicData : appliedRelics) {
             var excel = GameData.getItemExcelMap().get(relicData.getItemId());
             if (excel != null) {
                 GameItem relic = new GameItem(excel);
                 setupRelic(relic, relicData);
-                player.getInventory().addItem(relic);
+                avatar.getOwner().getInventory().addItem(relic);
                 avatar.equipItem(relic);
             }
-        });
+        }
+    }
+    
+    // Helper function to extract relic type based on the last digit of itemId (integer)
+    private int getRelicType(int itemId) {
+        return itemId % 10;
     }
 
-    private void setupRelic(GameItem relic, RelicData relicData) {
+    private void setupRelic(GameItem relic, Relic relicData) {
         relic.setLevel(MAX_RELIC_LEVEL);
         relic.setExp(EMPTY_EXP);
         relic.setMainAffix(Optional.ofNullable(relicData.getPrimaryAffixId()).orElse(1));
