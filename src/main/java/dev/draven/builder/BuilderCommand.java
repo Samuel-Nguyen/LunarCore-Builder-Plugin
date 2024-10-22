@@ -110,7 +110,7 @@ public class BuilderCommand implements CommandHandler {
 
         return buildInfoOpt.map(buildInfo -> {
             generateBuild(buildInfo, buildName);
-            return "Gave " + buildInfo.getFullName() + " relics for " + specificName.toUpperCase() + " build.";
+            return "";
         }).orElse("Build not found for input: " + input);
     }
 
@@ -191,8 +191,9 @@ public class BuilderCommand implements CommandHandler {
 
         if (buildDetailOpt.isEmpty()) {
             String fallbackBuildName = buildInfo.getBuilds().get(0).getBuildName();
-            args.sendMessage("Warning: Build '" + buildName + "' not found for character " + buildInfo.getFullName() + "."
-                + " Applying the '" + fallbackBuildName + "' build instead.");
+            args.sendMessage("Warning: Build '" + buildName.toUpperCase() + "' not found for character " + buildInfo.getFullName() + "."
+                + " Applying the '" + fallbackBuildName.toUpperCase() + "' build instead.");
+            args.sendMessage("Gave " + buildInfo.getFullName() + " relics for " + fallbackBuildName.toUpperCase() + " build.");
         }
 
         return buildDetailOpt.orElse(buildInfo.getBuilds().get(0));
