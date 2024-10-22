@@ -25,8 +25,10 @@ import emu.lunarcore.game.inventory.tabs.InventoryTabType;
 import emu.lunarcore.game.player.Player;
 import emu.lunarcore.util.JsonUtils;
 import emu.lunarcore.util.Utils;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
+import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
 @Command(
     label = "build",
@@ -255,17 +257,13 @@ public class BuilderCommand implements CommandHandler {
         }
     }
 
-    private int getRelicType(int itemId) {
-        return itemId % 10;
-    }
-
     private void setupRelic(GameItem relic, Relic relicData) {
         relic.setLevel(MAX_RELIC_LEVEL);
         relic.setExp(EMPTY_EXP);
         relic.setMainAffix(Optional.ofNullable(relicData.getPrimaryAffixId()).orElse(1));
         relic.resetSubAffixes();
 
-        Int2IntMap subAffixMap = parseSubAffixes(relicData.getSubAffixes());
+        Int2ObjectMap<ObjectIntPair<Integer>> subAffixMap = parseSubAffixes(relicData.getSubAffixes());
         applySubAffixes(relic, subAffixMap);
 
         if (args.hasFlag("-max")) {
@@ -273,22 +271,39 @@ public class BuilderCommand implements CommandHandler {
         }
     }
 
-    private Int2IntMap parseSubAffixes(String subAffixData) {
-        Int2IntMap subAffixMap = new Int2IntOpenHashMap();
+    private Int2ObjectMap<ObjectIntPair<Integer>> parseSubAffixes(String subAffixData) {
+        Int2ObjectMap<ObjectIntPair<Integer>> subAffixMap = new Int2ObjectOpenHashMap<>();
+
         Arrays.stream(subAffixData.split(" "))
-                .map(s -> s.split("[:,]"))
-                .filter(split -> split.length >= 2)
-                .forEach(split -> subAffixMap.put(Integer.parseInt(split[0]), Integer.parseInt(split[1])));
+                .map(s -> s.split(":"))
+                .filter(split -> split.length == 3)
+                .forEach(split -> {
+                    int subAffixId = Integer.parseInt(split[0]);
+                    int count = Integer.parseInt(split[1]);
+                    int step = Integer.parseInt(split[2]);
+                    subAffixMap.put(subAffixId, new ObjectIntImmutablePair<>(count, step));
+                });
+
         return subAffixMap;
     }
 
-    private void applySubAffixes(GameItem relic, Int2IntMap subAffixMap) {
-        subAffixMap.forEach((affixId, count) -> {
+    @Deprecated
+    private void applySubAffixes(GameItem relic, Int2ObjectMap<ObjectIntPair<Integer>> subAffixMap) {
+        subAffixMap.forEach((affixId, pair) -> {
+            int count = pair.first();
+            Integer step = pair.second();
+
             if (count > 0) {
                 var subAffix = GameData.getRelicSubAffixExcel(relic.getExcel().getRelicExcel().getSubAffixGroup(),
                         affixId);
                 if (subAffix != null) {
-                    relic.getSubAffixes().add(new GameItemSubAffix(subAffix, Math.min(count, 6)));
+                    GameItemSubAffix newSubAffix = new GameItemSubAffix(subAffix, Math.min(count, 6));
+
+                    if (step != null) {
+                        newSubAffix.setStep(step);
+                    }
+
+                    relic.getSubAffixes().add(newSubAffix);
                 }
             }
         });
@@ -309,5 +324,9 @@ public class BuilderCommand implements CommandHandler {
 
     private static boolean isNumeric(String str) {
         return str != null && str.matches("\\d+");
+    }
+
+    private int getRelicType(int itemId) {
+        return itemId % 10;
     }
 }
