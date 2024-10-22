@@ -27,8 +27,6 @@ import emu.lunarcore.util.JsonUtils;
 import emu.lunarcore.util.Utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
 @Command(
     label = "build",
@@ -45,7 +43,6 @@ public class BuilderCommand implements CommandHandler {
     private static final int EMPTY_EXP = 0;
     private static final int NO_REWARDS = 0b00101010;
     private CommandArgs args;
-    private String specificName;
 
     @Override
     public void execute(CommandArgs args) {
@@ -264,7 +261,7 @@ public class BuilderCommand implements CommandHandler {
         relic.setMainAffix(Optional.ofNullable(relicData.getPrimaryAffixId()).orElse(1));
         relic.resetSubAffixes();
 
-        Int2ObjectMap<ObjectIntPair<Integer>> subAffixMap = parseSubAffixes(relicData.getSubAffixes());
+        Int2ObjectMap<int[]> subAffixMap = parseSubAffixes(relicData.getSubAffixes());
         applySubAffixes(relic, subAffixMap);
 
         if (args.hasFlag("-max")) {
@@ -272,36 +269,34 @@ public class BuilderCommand implements CommandHandler {
         }
     }
 
-    private Int2ObjectMap<ObjectIntPair<Integer>> parseSubAffixes(String subAffixData) {
-        Int2ObjectMap<ObjectIntPair<Integer>> subAffixMap = new Int2ObjectOpenHashMap<>();
+    private Int2ObjectMap<int[]> parseSubAffixes(String subAffixData) {
+        Int2ObjectMap<int[]> subAffixMap = new Int2ObjectOpenHashMap<>();
 
         Arrays.stream(subAffixData.split(" "))
                 .map(s -> s.split(":"))
-                .filter(split -> split.length == 3)
+                .filter(split -> split.length >= 2)
                 .forEach(split -> {
-                    int subAffixId = Integer.parseInt(split[0]);
+                    int affixId = Integer.parseInt(split[0]);
                     int count = Integer.parseInt(split[1]);
-                    int step = Integer.parseInt(split[2]);
-                    subAffixMap.put(subAffixId, new ObjectIntImmutablePair<>(count, step));
+                    int step = (split.length == 3) ? Integer.parseInt(split[2]) : 0;
+                    subAffixMap.put(affixId, new int[]{count, step});
                 });
 
         return subAffixMap;
     }
 
-    @Deprecated
-    private void applySubAffixes(GameItem relic, Int2ObjectMap<ObjectIntPair<Integer>> subAffixMap) {
-        subAffixMap.forEach((affixId, pair) -> {
-            int count = pair.first();
-            Integer step = pair.second();
+    private void applySubAffixes(GameItem relic, Int2ObjectMap<int[]> subAffixMap) {
+        subAffixMap.forEach((affixId, values) -> {
+            int count = values[0];
+            int step = values[1];
 
             if (count > 0) {
-                var subAffix = GameData.getRelicSubAffixExcel(relic.getExcel().getRelicExcel().getSubAffixGroup(),
-                        affixId);
+                var subAffix = GameData.getRelicSubAffixExcel(relic.getExcel().getRelicExcel().getSubAffixGroup(), affixId);
                 if (subAffix != null) {
                     GameItemSubAffix newSubAffix = new GameItemSubAffix(subAffix, Math.min(count, 6));
 
-                    if (step != null) {
-                        newSubAffix.setStep(step);
+                    if (step != 0) {
+                        newSubAffix.setStep(Math.min(step, count * 2));
                     }
 
                     relic.getSubAffixes().add(newSubAffix);
