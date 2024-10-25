@@ -91,24 +91,31 @@ public class BuilderCommand implements CommandHandler {
     }
 
     private String processAllBuilds(List<CharacterBuildData> buildInformation, String buildName) {
+        // Filter only the characters that have the specified buildName
         long total = buildInformation.stream()
-                .filter(buildInfo -> generateBuild(buildInfo, buildName))
-                .count();
-
+            .filter(buildInfo -> generateBuild(buildInfo, buildName))  // Only count the successful ones
+            .count();  // Count how many were processed
+    
+        // Return how many characters were successfully processed
         return "Gave " + total + " characters relics for " + buildName.toUpperCase() + " build.";
     }
 
     private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
+        // Use Optional directly and check if the character was found
         Optional<CharacterBuildData> buildInfoOpt = findBuild(buildInformation, input);
-
-        if (buildInfoOpt == null) {
+    
+        // Return character not found message if the character isn't found
+        if (!buildInfoOpt.isPresent()) {
             return "Character not found.";
         }
-
-        return buildInfoOpt.map(buildInfo -> {
-            generateBuild(buildInfo, buildName);
-            return "";
-        }).orElse("Build not found for input: " + input);
+    
+        // Process the build and return a message if the build name does not exist
+        boolean buildGenerated = generateBuild(buildInfoOpt.get(), buildName);
+        if (!buildGenerated) {
+            return "Build '" + buildName + "' not found for character: " + buildInfoOpt.get().getFullName();
+        }
+    
+        return "Gave " + buildInfoOpt.get().getFullName() + " relics for '" + buildName + "' build.";
     }
 
     private Optional<CharacterBuildData> findBuild(List<CharacterBuildData> buildInformation, String input) {
@@ -120,14 +127,24 @@ public class BuilderCommand implements CommandHandler {
     public Boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
         Player player = args.getTarget();
         GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId(), player);
-        if (avatar == null)
-            return false;
+
+        if (avatar == null) {
+            return false;  // Exit if avatar creation failed
+        }
 
         setupAvatar(avatar, buildInfo);
-        applyBuild(avatar, buildInfo, buildName);
-        avatar.save();
 
-        return true;
+        // Get build details before proceeding
+        Optional<BuildDetail> buildDetailOpt = getBuildDetail(buildInfo, buildName);
+
+        if (buildDetailOpt.isPresent()) {
+            applyBuild(avatar, buildInfo, buildName);  // Apply the build if it's available
+            avatar.save();
+            return true;
+        } else {
+            args.sendMessage("Skipping character '" + buildInfo.getFullName() + "' due to missing build '" + buildName + "'.");
+            return false;  // Exit and return false if the build is not found
+        }
     }
 
     private GameAvatar getOrCreateAvatar(int id, Player player) {
@@ -175,25 +192,24 @@ public class BuilderCommand implements CommandHandler {
     }
 
     private void applyBuild(GameAvatar avatar, CharacterBuildData buildInfo, String buildName) {
-        BuildDetail buildDetail = getBuildDetail(buildInfo, buildName);
-        avatar.setRank(buildDetail.getEidolonLevel());
-        equipItem(avatar, buildDetail.getEquipment());
-        equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
+        Optional<BuildDetail> buildDetailOpt = getBuildDetail(buildInfo, buildName);
+
+        // Check if build detail is present
+        if (buildDetailOpt.isPresent()) {
+            BuildDetail buildDetail = buildDetailOpt.get();
+            avatar.setRank(buildDetail.getEidolonLevel());
+            equipItem(avatar, buildDetail.getEquipment());
+            equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
+        } else {
+            // Optionally log or send a message indicating the build was not found
+            args.sendMessage("Build '" + buildName + "' not found for " + buildInfo.getFullName() + ". Skipping...");
+        }
     }
 
-    private BuildDetail getBuildDetail(CharacterBuildData buildInfo, String buildName) {
-        Optional<BuildDetail> buildDetailOpt = buildInfo.getBuilds().stream()
+    private Optional<BuildDetail> getBuildDetail(CharacterBuildData buildInfo, String buildName) {
+        return buildInfo.getBuilds().stream()
                 .filter(detail -> detail.getBuildName().equalsIgnoreCase(buildName))
                 .findFirst();
-
-        if (buildDetailOpt.isEmpty()) {
-            String fallbackBuildName = buildInfo.getBuilds().get(0).getBuildName();
-            args.sendMessage("Warning: Build '" + buildName.toUpperCase() + "' not found for character " + buildInfo.getFullName() + "."
-                + " Applying the '" + fallbackBuildName.toUpperCase() + "' build instead.");
-            args.sendMessage("Gave " + buildInfo.getFullName() + " relics for " + fallbackBuildName.toUpperCase() + " build.");
-        }
-
-        return buildDetailOpt.orElse(buildInfo.getBuilds().get(0));
     }
 
     @Deprecated
