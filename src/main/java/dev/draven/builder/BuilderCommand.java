@@ -29,11 +29,8 @@ import emu.lunarcore.util.Utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-@Command(
-    label = "build", aliases = { "b" },
-    permission = "player.give", requireTarget = true,
-    desc = "/build [all/nickname/id] (build name) (-max)"
-)
+@Command(label = "build", aliases = {
+        "b" }, permission = "player.give", requireTarget = true, desc = "/build [all/nickname/id] (build name) (-max)")
 public class BuilderCommand implements CommandHandler {
 
     private static final int MAX_LEVEL = 80;
@@ -100,19 +97,11 @@ public class BuilderCommand implements CommandHandler {
 
     private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
         Optional<CharacterBuildData> buildInfoOpt = findBuild(buildInformation, input);
-    
-    
-        // Return character not found message if the character isn't found
 
-        // Return character not found message if the character isn't found
         if (!buildInfoOpt.isPresent()) {
             return "Character not found.";
         }
-    
-    
-        // Process the build and return a message if the build name does not exist
 
-        // Process the build and return a message if the build name does not exist
         boolean buildGenerated = generateBuild(buildInfoOpt.get(), buildName);
         if (!buildGenerated) {
             return "Build '" + buildName + "' not found for character: " + buildInfoOpt.get().getFullName();
@@ -200,11 +189,7 @@ public class BuilderCommand implements CommandHandler {
                     continue;
                 }
             }
-                avatar.getSkills().put(pointId, pointLevel);
-                avatar.getSkills().put(pointId, pointLevel);
-            }
             avatar.getSkills().put(pointId, pointLevel);
-            }
         }
     }
 
