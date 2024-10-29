@@ -16,13 +16,12 @@ public class BuilderPlugin extends Plugin {
     }
 
     public void onLoad() {
-        
     }
     
     public void onEnable() {
         LunarCore.getCommandManager().registerCommand(new BuilderCommand());
     }
-    
+
     public void onDisable() {
         LunarCore.getCommandManager().unregisterCommand(BuilderCommand.class.getAnnotation(Command.class).label());
     }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import dev.draven.builder.data.CharacterBuildData;
@@ -29,16 +30,15 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 @Command(
-    label = "build",
-    aliases = { "b" },
-    permission = "player.give",
-    requireTarget = true,
+    label = "build", aliases = { "b" },
+    permission = "player.give", requireTarget = true,
     desc = "/build [all/nickname/id] (build name) (-max)"
 )
 public class BuilderCommand implements CommandHandler {
 
     private static final int MAX_LEVEL = 80;
     private static final int MAX_PROMOTION = 6;
+    private static final int DEFAULT_SKILL_LEVEL = 8;
     private static final int MAX_RELIC_LEVEL = 15;
     private static final int EMPTY_EXP = 0;
     private static final int NO_REWARDS = 0b00101010;
@@ -91,30 +91,33 @@ public class BuilderCommand implements CommandHandler {
     }
 
     private String processAllBuilds(List<CharacterBuildData> buildInformation, String buildName) {
-        // Filter only the characters that have the specified buildName
         long total = buildInformation.stream()
-            .filter(buildInfo -> generateBuild(buildInfo, buildName))  // Only count the successful ones
-            .count();  // Count how many were processed
-    
-        // Return how many characters were successfully processed
+                .filter(buildInfo -> generateBuild(buildInfo, buildName))
+                .count();
+
         return "Gave " + total + " characters relics for " + buildName.toUpperCase() + " build.";
     }
 
     private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
-        // Use Optional directly and check if the character was found
         Optional<CharacterBuildData> buildInfoOpt = findBuild(buildInformation, input);
     
+    
+        // Return character not found message if the character isn't found
+
         // Return character not found message if the character isn't found
         if (!buildInfoOpt.isPresent()) {
             return "Character not found.";
         }
     
+    
+        // Process the build and return a message if the build name does not exist
+
         // Process the build and return a message if the build name does not exist
         boolean buildGenerated = generateBuild(buildInfoOpt.get(), buildName);
         if (!buildGenerated) {
             return "Build '" + buildName + "' not found for character: " + buildInfoOpt.get().getFullName();
         }
-    
+
         return "Gave " + buildInfoOpt.get().getFullName() + " relics for '" + buildName + "' build.";
     }
 
@@ -129,21 +132,20 @@ public class BuilderCommand implements CommandHandler {
         GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId(), player);
 
         if (avatar == null) {
-            return false;  // Exit if avatar creation failed
+            return false;
         }
 
         setupAvatar(avatar, buildInfo);
 
-        // Get build details before proceeding
         Optional<BuildDetail> buildDetailOpt = getBuildDetail(buildInfo, buildName);
-
         if (buildDetailOpt.isPresent()) {
-            applyBuild(avatar, buildInfo, buildName);  // Apply the build if it's available
+            applyBuild(avatar, buildInfo, buildName);
             avatar.save();
             return true;
         } else {
-            args.sendMessage("Skipping character '" + buildInfo.getFullName() + "' due to missing build '" + buildName + "'.");
-            return false;  // Exit and return false if the build is not found
+            args.sendMessage(
+                    "Skipping character '" + buildInfo.getFullName() + "' due to missing build '" + buildName + "'.");
+            return false;
         }
     }
 
@@ -181,12 +183,27 @@ public class BuilderCommand implements CommandHandler {
         avatar.setPromotion(MAX_PROMOTION);
         avatar.setRewards(NO_REWARDS);
 
+        Map<Integer, Integer> skillLevels = buildInfo.getSkillLevel();
+
         for (int pointId : avatar.getExcel().getSkillTreeIds()) {
-            var skillTree = GameData.getAvatarSkillTreeExcel(pointId, 1);
-            if (skillTree != null) {
-                int pointLevel = Math.min(buildInfo.getSkillLevel(), skillTree.getMaxLevel());
-                pointLevel = Math.max(pointLevel, skillTree.isDefaultUnlock() ? 1 : 0);
+            Integer exactLevel = skillLevels.get(pointId);
+
+            int pointLevel;
+            if (exactLevel != null) {
+                pointLevel = exactLevel;
+            } else {
+                var skillTree = GameData.getAvatarSkillTreeExcel(pointId, 1);
+                if (skillTree != null) {
+                    pointLevel = Math.min(DEFAULT_SKILL_LEVEL, skillTree.getMaxLevel());
+                    pointLevel = Math.max(pointLevel, skillTree.isDefaultUnlock() ? 1 : 0);
+                } else {
+                    continue;
+                }
+            }
                 avatar.getSkills().put(pointId, pointLevel);
+                avatar.getSkills().put(pointId, pointLevel);
+            }
+            avatar.getSkills().put(pointId, pointLevel);
             }
         }
     }
@@ -194,14 +211,12 @@ public class BuilderCommand implements CommandHandler {
     private void applyBuild(GameAvatar avatar, CharacterBuildData buildInfo, String buildName) {
         Optional<BuildDetail> buildDetailOpt = getBuildDetail(buildInfo, buildName);
 
-        // Check if build detail is present
         if (buildDetailOpt.isPresent()) {
             BuildDetail buildDetail = buildDetailOpt.get();
             avatar.setRank(buildDetail.getEidolonLevel());
             equipItem(avatar, buildDetail.getEquipment());
             equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
         } else {
-            // Optionally log or send a message indicating the build was not found
             args.sendMessage("Build '" + buildName + "' not found for " + buildInfo.getFullName() + ". Skipping...");
         }
     }
@@ -295,7 +310,7 @@ public class BuilderCommand implements CommandHandler {
                     int affixId = Integer.parseInt(split[0]);
                     int count = Integer.parseInt(split[1]);
                     int step = (split.length == 3) ? Integer.parseInt(split[2]) : 0;
-                    subAffixMap.put(affixId, new int[]{count, step});
+                    subAffixMap.put(affixId, new int[] { count, step });
                 });
 
         return subAffixMap;
@@ -307,7 +322,8 @@ public class BuilderCommand implements CommandHandler {
             int step = values[1];
 
             if (count > 0) {
-                var subAffix = GameData.getRelicSubAffixExcel(relic.getExcel().getRelicExcel().getSubAffixGroup(), affixId);
+                var subAffix = GameData.getRelicSubAffixExcel(relic.getExcel().getRelicExcel().getSubAffixGroup(),
+                        affixId);
                 if (subAffix != null) {
                     GameItemSubAffix newSubAffix = new GameItemSubAffix(subAffix, Math.min(count, 6));
 

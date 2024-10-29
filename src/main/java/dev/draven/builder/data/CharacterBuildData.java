@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @NoArgsConstructor
@@ -15,7 +16,7 @@ public class CharacterBuildData {
     private String avatarName;
     private String fullName;
     private int rarity;
-    private int skillLevel;
+    private Map<Integer, Integer> skillLevel;
     private List<Relic> defaultRelics;
     private List<BuildDetail> builds;
 
