@@ -44,23 +44,24 @@ public class BuilderCommand implements CommandHandler {
     @Override
     public void execute(CommandArgs args) {
         this.args = args;
-        if (!hasInventorySpace()) {
-            args.sendMessage("Error: The targeted player does not have enough space in their inventory.");
-            return;
-        }
+        try {
+            if (!hasInventorySpace()) {
+                args.sendMessage("Error: The targeted player does not have enough space in their inventory.");
+                return;
+            }
 
-        String message = parseBuildData();
-        args.getSender().sendMessage(message);
+            String message = parseBuildData();
+            args.getSender().sendMessage(message);
+        } catch (Exception e) {
+            args.sendMessage("Error processing build command: " + e.getMessage());
+            LunarCore.getLogger().error("Error in builder command", e);
+        }
     }
 
     private boolean hasInventorySpace() {
         Inventory inventory = args.getTarget().getInventory();
-        return hasAvailableCapacity(inventory, InventoryTabType.RELIC) &&
-                hasAvailableCapacity(inventory, InventoryTabType.EQUIPMENT);
-    }
-
-    private boolean hasAvailableCapacity(Inventory inventory, InventoryTabType type) {
-        return inventory.getTab(type).getAvailableCapacity() > 0;
+        return inventory.getTab(InventoryTabType.RELIC).getAvailableCapacity() > 0 &&
+               inventory.getTab(InventoryTabType.EQUIPMENT).getAvailableCapacity() > 0;
     }
 
     private String parseBuildData() {
@@ -72,10 +73,9 @@ public class BuilderCommand implements CommandHandler {
             return "No builds found. Please define one.";
         }
 
-        return switch (input) {
-            case "all", "a" -> processAllBuilds(buildInformation, buildName);
-            default -> processSpecificBuild(buildInformation, input, buildName);
-        };
+        return "all".equals(input) || "a".equals(input)
+                ? processAllBuilds(buildInformation, buildName)
+                : processSpecificBuild(buildInformation, input, buildName);
     }
 
     private List<CharacterBuildData> loadBuildInformation() {
@@ -89,25 +89,25 @@ public class BuilderCommand implements CommandHandler {
 
     private String processAllBuilds(List<CharacterBuildData> buildInformation, String buildName) {
         long total = buildInformation.stream()
-                .filter(buildInfo -> generateBuild(buildInfo, buildName))
-                .count();
+            .filter(buildInfo -> generateBuild(buildInfo, buildName))
+            .count();
 
-        return "Gave " + total + " characters relics for " + buildName.toUpperCase() + " build.";
+        return String.format("Gave %d characters relics for %s build.", total, buildName.toUpperCase());
     }
 
     private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
-        Optional<CharacterBuildData> buildInfoOpt = findBuild(buildInformation, input);
-
-        if (!buildInfoOpt.isPresent()) {
+        Optional<CharacterBuildData> buildInfo = findBuild(buildInformation, input);
+        
+        if (buildInfo.isEmpty()) {
             return "Character not found.";
         }
 
-        boolean buildGenerated = generateBuild(buildInfoOpt.get(), buildName);
-        if (!buildGenerated) {
-            return "Build '" + buildName + "' not found for character: " + buildInfoOpt.get().getFullName();
+        boolean success = generateBuild(buildInfo.get(), buildName);
+        if (!success) {
+            return String.format("Build '%s' not found for character: %s", buildName.toUpperCase(), buildInfo.get().getFullName());
         }
 
-        return "Gave " + buildInfoOpt.get().getFullName() + " relics for '" + buildName + "' build.";
+        return String.format("Gave %s relics for '%s' build.", buildInfo.get().getFullName(), buildName.toUpperCase());
     }
 
     private Optional<CharacterBuildData> findBuild(List<CharacterBuildData> buildInformation, String input) {
@@ -116,7 +116,7 @@ public class BuilderCommand implements CommandHandler {
                 : buildInformation.stream().filter(b -> b.getAvatarName().equalsIgnoreCase(input)).findFirst();
     }
 
-    public Boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
+    private boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
         Player player = args.getTarget();
         GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId(), player);
 
@@ -126,16 +126,16 @@ public class BuilderCommand implements CommandHandler {
 
         setupAvatar(avatar, buildInfo);
 
-        Optional<BuildDetail> buildDetailOpt = getBuildDetail(buildInfo, buildName);
-        if (buildDetailOpt.isPresent()) {
-            applyBuild(avatar, buildInfo, buildName);
-            avatar.save();
-            return true;
-        } else {
-            args.sendMessage(
-                    "Skipping character '" + buildInfo.getFullName() + "' due to missing build '" + buildName + "'.");
+        Optional<BuildDetail> buildDetail = getBuildDetail(buildInfo, buildName);
+        if (buildDetail.isEmpty()) {
+            args.sendMessage(String.format("Skipping character '%s' due to missing build '%s'.", 
+                buildInfo.getFullName(), buildName.toUpperCase()));
             return false;
         }
+
+        applyBuild(avatar, buildInfo, buildName);
+        avatar.save();
+        return true;
     }
 
     private GameAvatar getOrCreateAvatar(int id, Player player) {
