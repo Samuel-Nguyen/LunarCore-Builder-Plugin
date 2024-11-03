@@ -29,8 +29,9 @@ import emu.lunarcore.util.Utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-@Command(label = "build", aliases = {
-        "b" }, permission = "player.give", requireTarget = true, desc = "/build [all/nickname/id] (build name) (-max)")
+@Command(label = "build", aliases = { "b" },
+        permission = "player.give", requireTarget = true,
+        desc = "/build [all/nickname/id] (build name) (-max)")
 public class BuilderCommand implements CommandHandler {
 
     private static final int MAX_LEVEL = 80;
@@ -61,7 +62,7 @@ public class BuilderCommand implements CommandHandler {
     private boolean hasInventorySpace() {
         Inventory inventory = args.getTarget().getInventory();
         return inventory.getTab(InventoryTabType.RELIC).getAvailableCapacity() > 0 &&
-               inventory.getTab(InventoryTabType.EQUIPMENT).getAvailableCapacity() > 0;
+                inventory.getTab(InventoryTabType.EQUIPMENT).getAvailableCapacity() > 0;
     }
 
     private String parseBuildData() {
@@ -89,25 +90,31 @@ public class BuilderCommand implements CommandHandler {
 
     private String processAllBuilds(List<CharacterBuildData> buildInformation, String buildName) {
         long total = buildInformation.stream()
-            .filter(buildInfo -> generateBuild(buildInfo, buildName))
-            .count();
+                .filter(buildInfo -> generateBuild(buildInfo, buildName))
+                .count();
 
-        return String.format("Gave %d characters relics for %s build.", total, buildName.toUpperCase());
+        return String.format(
+                "Gave %d characters relics for %s build.",
+                total, buildName.toUpperCase());
     }
 
     private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
         Optional<CharacterBuildData> buildInfo = findBuild(buildInformation, input);
-        
+
         if (buildInfo.isEmpty()) {
             return "Character not found.";
         }
 
         boolean success = generateBuild(buildInfo.get(), buildName);
         if (!success) {
-            return String.format("Build '%s' not found for character: %s", buildName.toUpperCase(), buildInfo.get().getFullName());
+            return String.format(
+                    "Build '%s' not found for character: %s",
+                    buildName.toUpperCase(), buildInfo.get().getFullName());
         }
 
-        return String.format("Gave %s relics for '%s' build.", buildInfo.get().getFullName(), buildName.toUpperCase());
+        return String.format(
+                "Gave %s relics for '%s' build.",
+                buildInfo.get().getFullName(), buildName.toUpperCase());
     }
 
     private Optional<CharacterBuildData> findBuild(List<CharacterBuildData> buildInformation, String input) {
@@ -128,8 +135,9 @@ public class BuilderCommand implements CommandHandler {
 
         Optional<BuildDetail> buildDetail = getBuildDetail(buildInfo, buildName);
         if (buildDetail.isEmpty()) {
-            args.sendMessage(String.format("Skipping character '%s' due to missing build '%s'.", 
-                buildInfo.getFullName(), buildName.toUpperCase()));
+            args.sendMessage(String.format(
+                    "Skipping character '%s' due to missing build '%s'.",
+                    buildInfo.getFullName(), buildName.toUpperCase()));
             return false;
         }
 
@@ -202,7 +210,9 @@ public class BuilderCommand implements CommandHandler {
             equipItem(avatar, buildDetail.getEquipment());
             equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
         } else {
-            args.sendMessage("Build '" + buildName + "' not found for " + buildInfo.getFullName() + ". Skipping...");
+            args.sendMessage(String.format(
+                    "Build '%s' not found for %s. Skipping...",
+                    buildName.toUpperCase(), buildInfo.getFullName()));
         }
     }
 
