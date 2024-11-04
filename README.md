@@ -5,7 +5,7 @@ A plugin that adds a command to LunarCore to import characters from JSON file.
 ## Compiling
 
 1. Compile with `./gradlew jar` from your system terminal
-2. Place the compiled jar file (`builder.jar`) into your LunarCore plugins folder
+2. Place the compiled jar file (`builder.jar`) into your LunarCore `plugins` folder
 
 ## Usage
 
@@ -19,6 +19,10 @@ For perfect the relics, just add `-max` at the end of the command.
 
 > Note:
 > * You can define your build in `BuilderDetails.json`.
+> * You can change based on your need in `relics` section of your build, else it will always get parameters from their default relics set.
+>   * To change the relics set, change `itemId`.
+>   * To change the main affix, change `primaryAffixId`.
+>   * To change the sub affix, change `subAffixes`.
 
 ## Build
 
