@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import dev.draven.builder.data.CharacterBuildData;
 import dev.draven.builder.data.CharacterBuildData.BuildDetail;
@@ -41,10 +42,12 @@ public class BuilderCommand implements CommandHandler {
     private static final int EMPTY_EXP = 0;
     private static final int NO_REWARDS = 0b00101010;
     private CommandArgs args;
+    private Player player;
 
     @Override
     public void execute(CommandArgs args) {
         this.args = args;
+        this.player = args.getTarget();
         try {
             if (!hasInventorySpace()) {
                 args.sendMessage("Error: The targeted player does not have enough space in their inventory.");
@@ -60,7 +63,7 @@ public class BuilderCommand implements CommandHandler {
     }
 
     private boolean hasInventorySpace() {
-        Inventory inventory = args.getTarget().getInventory();
+        Inventory inventory = player.getInventory();
         return inventory.getTab(InventoryTabType.RELIC).getAvailableCapacity() > 0 &&
                 inventory.getTab(InventoryTabType.EQUIPMENT).getAvailableCapacity() > 0;
     }
@@ -89,13 +92,39 @@ public class BuilderCommand implements CommandHandler {
     }
 
     private String processAllBuilds(List<CharacterBuildData> buildInformation, String buildName) {
-        long total = buildInformation.stream()
+        List<String> appliedCharacters = buildInformation.stream()
                 .filter(buildInfo -> generateBuild(buildInfo, buildName))
-                .count();
+                .map(CharacterBuildData::getFullName)
+                .collect(Collectors.toList());
 
-        return String.format(
-                "Gave %d characters relics for %s build.",
-                total, buildName.toUpperCase());
+        int totalApplied = appliedCharacters.size();
+        int totalCharacters = buildInformation.size();
+
+        if (totalApplied == 0) {
+            return "No characters had the specified build name: " + buildName.toUpperCase();
+        }
+
+        if (totalApplied == totalCharacters) {
+            return String.format("Gave %d characters relics for %s build.",
+                    totalApplied, buildName.toUpperCase());
+        }
+
+        StringBuilder message = new StringBuilder(
+                String.format("Gave relics of '%s' build to %d characters: \n",
+                        buildName.toUpperCase(), totalApplied));
+
+        for (int i = 0; i < appliedCharacters.size(); i++) {
+            if (i > 0 && i % 10 == 0) {
+                message.append("\n");
+            }
+            message.append(appliedCharacters.get(i)).append(", ");
+        }
+
+        if (message.length() > 0) {
+            message.setLength(message.length() - 2);
+        }
+
+        return message.toString();
     }
 
     private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
@@ -124,32 +153,27 @@ public class BuilderCommand implements CommandHandler {
     }
 
     private boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
-        Player player = args.getTarget();
-        GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId(), player);
+        GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId());
 
         if (avatar == null) {
             return false;
         }
 
-        setupAvatar(avatar, buildInfo);
-
         Optional<BuildDetail> buildDetail = getBuildDetail(buildInfo, buildName);
         if (buildDetail.isEmpty()) {
-            args.sendMessage(String.format(
-                    "Skipping character '%s' due to missing build '%s'.",
-                    buildInfo.getFullName(), buildName.toUpperCase()));
             return false;
         }
 
+        setupAvatar(avatar, buildInfo);
         applyBuild(avatar, buildInfo, buildName);
         avatar.save();
         return true;
     }
 
-    private GameAvatar getOrCreateAvatar(int id, Player player) {
+    private GameAvatar getOrCreateAvatar(int id) {
         GameAvatar avatar = player.getAvatarById(id);
+
         if (avatar != null) {
-            unequipAvatarItems(avatar, player);
             return avatar;
         }
 
@@ -165,7 +189,7 @@ public class BuilderCommand implements CommandHandler {
     }
 
     @Deprecated
-    private void unequipAvatarItems(GameAvatar avatar, Player player) {
+    private void unequipAvatarItems(GameAvatar avatar) {
         List<GameItem> unequipList = avatar.getEquips().keySet().stream()
                 .map(avatar::unequipItem)
                 .filter(item -> item != null)
@@ -207,12 +231,9 @@ public class BuilderCommand implements CommandHandler {
         if (buildDetailOpt.isPresent()) {
             BuildDetail buildDetail = buildDetailOpt.get();
             avatar.setRank(buildDetail.getEidolonLevel());
+            unequipAvatarItems(avatar);
             equipItem(avatar, buildDetail.getEquipment());
             equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
-        } else {
-            args.sendMessage(String.format(
-                    "Build '%s' not found for %s. Skipping...",
-                    buildName.toUpperCase(), buildInfo.getFullName()));
         }
     }
 
