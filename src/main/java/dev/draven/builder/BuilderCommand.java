@@ -325,7 +325,7 @@ public class BuilderCommand implements CommandHandler {
                 .forEach(split -> {
                     int affixId = Integer.parseInt(split[0]);
                     int count = Integer.parseInt(split[1]);
-                    int step = (split.length == 3) ? Integer.parseInt(split[2]) : 0;
+                    int step = (split.length == 3) ? Integer.parseInt(split[2]) : -1;
                     subAffixMap.put(affixId, new int[] { count, step });
                 });
 
@@ -343,7 +343,7 @@ public class BuilderCommand implements CommandHandler {
                 if (subAffix != null) {
                     GameItemSubAffix newSubAffix = new GameItemSubAffix(subAffix, Math.min(count, 6));
 
-                    if (step != 0) {
+                    if (step != -1) {
                         newSubAffix.setStep(Math.min(step, count * 2));
                     }
 
