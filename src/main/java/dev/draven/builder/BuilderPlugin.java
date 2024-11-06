@@ -20,10 +20,12 @@ public class BuilderPlugin extends Plugin {
     
     public void onEnable() {
         LunarCore.getCommandManager().registerCommand(new BuilderCommand());
+        LunarCore.getCommandManager().registerCommand(new TeamBuilderCommand());
     }
 
     public void onDisable() {
         LunarCore.getCommandManager().unregisterCommand(BuilderCommand.class.getAnnotation(Command.class).label());
+        LunarCore.getCommandManager().unregisterCommand(TeamBuilderCommand.class.getAnnotation(Command.class).label());
     }
 
 }

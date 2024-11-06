@@ -1,14 +1,12 @@
 package dev.draven.builder.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CharacterBuildData {
@@ -16,7 +14,8 @@ public class CharacterBuildData {
     private String avatarName;
     private String fullName;
     private int rarity;
-    private Map<Integer, Integer> skillLevel;
+    private Map<String, Integer> skillLevel;
+
     private List<Relic> defaultRelics;
     private List<BuildDetail> builds;
 
@@ -31,6 +30,7 @@ public class CharacterBuildData {
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BuildDetail {
@@ -41,6 +41,7 @@ public class CharacterBuildData {
     }
 
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Equipment {

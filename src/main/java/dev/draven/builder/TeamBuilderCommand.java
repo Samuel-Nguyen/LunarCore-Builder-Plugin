@@ -7,12 +7,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import dev.draven.builder.data.CharacterBuildData;
-import dev.draven.builder.data.CharacterBuildData.BuildDetail;
+import dev.draven.builder.data.TeamBuildData;
 import dev.draven.builder.data.CharacterBuildData.Equipment;
 import dev.draven.builder.data.CharacterBuildData.Relic;
+import emu.lunarcore.GameConstants;
 import emu.lunarcore.LunarCore;
 import emu.lunarcore.command.Command;
 import emu.lunarcore.command.CommandArgs;
@@ -25,15 +25,14 @@ import emu.lunarcore.game.inventory.GameItemSubAffix;
 import emu.lunarcore.game.inventory.Inventory;
 import emu.lunarcore.game.inventory.tabs.InventoryTabType;
 import emu.lunarcore.game.player.Player;
+import emu.lunarcore.game.player.lineup.PlayerLineup;
 import emu.lunarcore.util.JsonUtils;
-import emu.lunarcore.util.Utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-@Command(label = "build", aliases = { "b" },
-        permission = "player.give", requireTarget = true,
-        desc = "/build [all/nickname/id] (build name) (-max)")
-public class BuilderCommand implements CommandHandler {
+@Command(label = "teambuild", aliases = {
+        "tb" }, permission = "player.lineup", requireTarget = true, desc = "/teambuild [name]")
+public class TeamBuilderCommand implements CommandHandler {
 
     private static final int MAX_LEVEL = 80;
     private static final int MAX_PROMOTION = 6;
@@ -54,7 +53,10 @@ public class BuilderCommand implements CommandHandler {
                 return;
             }
 
-            String message = parseBuildData();
+            String name = args.get(0).toLowerCase();
+            List<TeamBuildData> teamInformation = loadTeamData();
+
+            String message = setupTeamLineup(teamInformation, name);
             args.getSender().sendMessage(message);
         } catch (Exception e) {
             args.sendMessage("Error processing build command: " + e.getMessage());
@@ -68,106 +70,73 @@ public class BuilderCommand implements CommandHandler {
                 inventory.getTab(InventoryTabType.EQUIPMENT).getAvailableCapacity() > 0;
     }
 
-    private String parseBuildData() {
-        String input = args.get(0).toLowerCase();
-        String buildName = args.get(1).isEmpty() ? "normal" : args.get(1).toLowerCase();
-        List<CharacterBuildData> buildInformation = loadBuildInformation();
-
-        if (buildInformation.isEmpty()) {
-            return "No builds found. Please define one.";
-        }
-
-        return "all".equals(input) || "a".equals(input)
-                ? processAllBuilds(buildInformation, buildName)
-                : processSpecificBuild(buildInformation, input, buildName);
-    }
-
-    private List<CharacterBuildData> loadBuildInformation() {
-        try (FileReader fileReader = new FileReader(LunarCore.getConfig().getDataDir() + "/BuildDetails.json")) {
-            return JsonUtils.loadToList(fileReader, CharacterBuildData.class);
+    private List<TeamBuildData> loadTeamData() {
+        try (FileReader reader = new FileReader(LunarCore.getConfig().getDataDir() + "/TeamDetails.json")) {
+            return JsonUtils.loadToList(reader, TeamBuildData.class);
         } catch (Exception e) {
-            LunarCore.getLogger().error("Error loading BuildDetails.json", e);
+            LunarCore.getLogger().error("Error loading TeamDetails.json", e);
             return Collections.emptyList();
         }
     }
 
-    private String processAllBuilds(List<CharacterBuildData> buildInformation, String buildName) {
-        List<String> appliedCharacters = buildInformation.stream()
-                .filter(buildInfo -> generateBuild(buildInfo, buildName))
-                .map(CharacterBuildData::getFullName)
-                .collect(Collectors.toList());
+    private Optional<TeamBuildData> findTeamByName(List<TeamBuildData> teamInformation, String teamName) {
+        return teamInformation.stream()
+                .filter(team -> team.getName().equalsIgnoreCase(teamName))
+                .findFirst();
+    }
 
-        int totalApplied = appliedCharacters.size();
-        int totalCharacters = buildInformation.size();
+    public String setupTeamLineup(List<TeamBuildData> teamInformation, String teamName) {
+        Optional<TeamBuildData> teamOpt = findTeamByName(teamInformation, teamName);
 
-        if (totalApplied == 0) {
-            return "No characters had the specified build name: " + buildName.toUpperCase();
+        if (teamOpt.isEmpty()) {
+            return "Team '" + teamName + "' not found.";
         }
 
-        if (totalApplied == totalCharacters) {
-            return String.format("Gave %d characters relics for %s build.",
-                    totalApplied, buildName.toUpperCase());
-        }
+        TeamBuildData team = teamOpt.get();
+        List<Integer> avatarIds = new ArrayList<>();
 
-        StringBuilder message = new StringBuilder(
-                String.format("Gave relics of '%s' build to %d characters: \n",
-                        buildName.toUpperCase(), totalApplied));
-
-        for (int i = 0; i < appliedCharacters.size(); i++) {
-            if (i > 0 && i % 10 == 0) {
-                message.append("\n");
+        for (CharacterBuildData character : team.getBuildData()) {
+            GameAvatar avatar = getOrCreateAvatar(character.getAvatarId());
+            if (avatar != null) {
+                setupAvatar(avatar, character);
+                applyNormalBuild(avatar, character);
+                avatarIds.add(avatar.getAvatarId());
             }
-            message.append(appliedCharacters.get(i)).append(", ");
+
+            if (avatarIds.size() >= GameConstants.MAX_AVATARS_IN_TEAM) {
+                return "Team lineup must only have 4 characters.";
+            }
         }
 
-        if (message.length() > 0) {
-            message.setLength(message.length() - 2);
+        // Set up the lineup
+        if (!avatarIds.isEmpty()) {
+            setPlayerLineup(avatarIds);
+            return "Team lineup for '" + teamName + "' has been set successfully.";
+        } else {
+            return "No avatars could be added to the lineup.";
         }
-
-        return message.toString();
     }
 
-    private String processSpecificBuild(List<CharacterBuildData> buildInformation, String input, String buildName) {
-        Optional<CharacterBuildData> buildInfo = findBuild(buildInformation, input);
-
-        if (buildInfo.isEmpty()) {
-            return "Character not found.";
-        }
-
-        boolean success = generateBuild(buildInfo.get(), buildName);
-        if (!success) {
-            return String.format(
-                    "Build '%s' not found for character: %s",
-                    buildName.toUpperCase(), buildInfo.get().getFullName());
-        }
-
-        return String.format(
-                "Gave %s relics for '%s' build.",
-                buildInfo.get().getFullName(), buildName.toUpperCase());
+    private void applyNormalBuild(GameAvatar avatar, CharacterBuildData character) {
+        character.getBuilds().stream()
+                .filter(build -> build.getBuildName().equalsIgnoreCase("normal"))
+                .findFirst()
+                .ifPresent(buildDetail -> {
+                    avatar.setRank(buildDetail.getEidolonLevel());
+                    unequipAvatarItems(avatar);
+                    equipItem(avatar, buildDetail.getEquipment());
+                    equipRelics(avatar, buildDetail.getRelics(), character.getDefaultRelics());
+                });
     }
 
-    private Optional<CharacterBuildData> findBuild(List<CharacterBuildData> buildInformation, String input) {
-        return isNumeric(input)
-                ? buildInformation.stream().filter(b -> b.getAvatarId() == Utils.parseSafeInt(input)).findFirst()
-                : buildInformation.stream().filter(b -> b.getAvatarName().equalsIgnoreCase(input)).findFirst();
-    }
+    private void setPlayerLineup(List<Integer> avatarIds) {
+        PlayerLineup lineup = player.getCurrentLineup();
+        lineup.getAvatars().clear();
+        lineup.getAvatars().addAll(avatarIds);
+        lineup.save();
 
-    private boolean generateBuild(CharacterBuildData buildInfo, String buildName) {
-        GameAvatar avatar = getOrCreateAvatar(buildInfo.getAvatarId());
-
-        if (avatar == null) {
-            return false;
-        }
-
-        Optional<BuildDetail> buildDetail = getBuildDetail(buildInfo, buildName);
-        if (buildDetail.isEmpty()) {
-            return false;
-        }
-
-        setupAvatar(avatar, buildInfo);
-        applyBuild(avatar, buildInfo, buildName);
-        avatar.save();
-        return true;
+        lineup.refreshLineup();
+        player.getScene().syncLineup();
     }
 
     private GameAvatar getOrCreateAvatar(int id) {
@@ -223,24 +192,6 @@ public class BuilderCommand implements CommandHandler {
             }
             avatar.getSkills().put(pointId, pointLevel);
         }
-    }
-
-    private void applyBuild(GameAvatar avatar, CharacterBuildData buildInfo, String buildName) {
-        Optional<BuildDetail> buildDetailOpt = getBuildDetail(buildInfo, buildName);
-
-        if (buildDetailOpt.isPresent()) {
-            BuildDetail buildDetail = buildDetailOpt.get();
-            avatar.setRank(buildDetail.getEidolonLevel());
-            unequipAvatarItems(avatar);
-            equipItem(avatar, buildDetail.getEquipment());
-            equipRelics(avatar, buildDetail.getRelics(), buildInfo.getDefaultRelics());
-        }
-    }
-
-    private Optional<BuildDetail> getBuildDetail(CharacterBuildData buildInfo, String buildName) {
-        return buildInfo.getBuilds().stream()
-                .filter(detail -> detail.getBuildName().equalsIgnoreCase(buildName))
-                .findFirst();
     }
 
     @Deprecated
@@ -364,10 +315,6 @@ public class BuilderCommand implements CommandHandler {
         }
 
         relic.getSubAffixes().forEach(subAffix -> subAffix.setStep(subAffix.getCount() * 2));
-    }
-
-    private static boolean isNumeric(String str) {
-        return str != null && str.matches("\\d+");
     }
 
     private int getRelicType(int itemId) {
