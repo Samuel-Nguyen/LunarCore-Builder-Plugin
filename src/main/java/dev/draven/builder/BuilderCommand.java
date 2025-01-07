@@ -30,9 +30,8 @@ import emu.lunarcore.util.Utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-@Command(label = "build", aliases = { "b" },
-        permission = "player.give", requireTarget = true,
-        desc = "/build [all/nickname/id] (build name) (-max)")
+@Command(label = "build", aliases = {
+        "b" }, permission = "player.give", requireTarget = true, desc = "/build [all/nickname/id] (build name) (-max)")
 public class BuilderCommand implements CommandHandler {
 
     private static final int MAX_LEVEL = 80;
@@ -338,8 +337,7 @@ public class BuilderCommand implements CommandHandler {
             int step = values[1];
 
             if (count > 0) {
-                var subAffix = GameData.getRelicSubAffixExcel(relic.getExcel().getRelicExcel().getSubAffixGroup(),
-                        affixId);
+                var subAffix = GameData.getRelicSubAffixExcel(relic.getExcel().getRelicExcel().getSubAffixGroup(), affixId);
                 if (subAffix != null) {
                     GameItemSubAffix newSubAffix = new GameItemSubAffix(subAffix, Math.min(count, 6));
 
@@ -352,9 +350,17 @@ public class BuilderCommand implements CommandHandler {
             }
         });
 
-        int upgrades = relic.getMaxNormalSubAffixCount() - relic.getCurrentSubAffixCount();
-        if (upgrades > 0) {
-            relic.addSubAffixes(upgrades);
+        int currentSubStatCount = relic.getCurrentSubAffixCount();
+        int maxSubAffixCount = (currentSubStatCount == 3) ? 9 : 8;
+
+        if (currentSubStatCount == 3 && subAffixMap.size() < 4) {
+            relic.addSubAffixes(1);
+            currentSubStatCount++;
+        }
+
+        int remainingUpgrades = maxSubAffixCount - currentSubStatCount;
+        if (remainingUpgrades > 0) {
+            relic.addSubAffixes(remainingUpgrades);
         }
     }
 
