@@ -42,7 +42,8 @@ Default build for multi path characters:
 | ID   | Character     | Nickname | Build Name |
 |------|---------------|----------|------------|
 | 1308 | Acheron | ache | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5**, **genius** |
-| 1302 | Argenti | argen | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5**, **genius**, **thief** |
+| 1402 | Aglaea | agl | **normal**, **slow**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
+| 1302 | Argenti | argen | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5**, **genius**, **pf** |
 | 1008 | Arlan | arlan | **normal**, **band**, **genius** |
 | 1009 | Asta | asta | **normal**, **eagle** |
 | 1304 | Aventurine | aven | **normal**, **dps**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
@@ -58,15 +59,16 @@ Default build for multi path characters:
 | 1220 | Feixiao | fei | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1310 | Firefly | fly | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1208 | Fu Xuan | fu | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
+| 1225 | Fugue | fugue | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5**, **eagle**, **thief** |
 | 1301 | Gallagher | gall | **normal** |
 | 1104 | Gepard | gep | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
-| 1210 | Guinafen | gui | **normal**, **dot** |
+| 1210 | Guinaifen | gui | **normal**, **dot** |
 | 1215 | Hanya | hanya | **normal** |
 | 1013 | Herta | herta | **normal**, **pf** |
 | 1003 | Himeko | him | **normal**, **f2p**, **pf**, **break**, **h1**, **h2**, **h4**, **h6t5** |
 | 1109 | Hook | hook | **normal** |
 | 1217 | Huohuo | huo | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
-| 1314 | Jade | jade | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
+| 1314 | Jade | jade | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5**, **pf** |
 | 1218 | Jiaoqiu | jqiu | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1204 | Jing Yuan | jyuan | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1212 | Jingliu | jliu | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
@@ -82,17 +84,19 @@ Default build for multi path characters:
 | 1106 | Pela | pela | **normal** |
 | 1201 | Qingque | qque | **normal** |
 | 1317 | Rappa | rappa | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5**, **genius**, **eagle**, **thief** |
-| 1309 | Robin | robin | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
+| 1309 | Robin | robin | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5**, **h6t5-fast** |
 | 1303 | Ruan Mei | mei | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1108 | Sampo | sampo | **normal**, **dot** |
 | 1102 | Seele | seele | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
-| 1103 | Serval | serval | **normal**, **pf** |
+| 1103 | Serval | serval | **normal**, **pf**, **eagle** |
 | 1006 | Silver Wolf | wolf | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1306 | Sparkle | sparkle | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
+| 1313 | Sunday | sun | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1206 | Sushang | sus | **normal**, **break** |
+| 1401 | The Herta | therta | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1202 | Tingyun | ting | **normal** |
 | 1112 | Topaz & Numby | topaz | **normal**, **f2p**, **duran**, **h1**, **h2**, **h4**, **h6t5** |
-| 8001 | Trailblazer | tb | **normal**, **def**, **harm** |
+| 8001 | Trailblazer | tb | **normal**, **def**, **harm**, **pf**, **rem** |
 | 1004 | Welt | welt | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
 | 1214 | Xueyi | xueyi | **normal** |
 | 1209 | Yanqing | yqing | **normal**, **f2p**, **h1**, **h2**, **h4**, **h6t5** |
